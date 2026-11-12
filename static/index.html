@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pintar Matematika — Latihan Soal SD Kelas 4</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="kepala">
+    <a class="merek" href="#/">🧮 <span>Pintar Matematika</span><small>SD Kelas 4</small></a>
+    <nav>
+      <a href="#/" data-nav="beranda">Beranda</a>
+      <a href="#/riwayat" data-nav="riwayat">Riwayat</a>
+    </nav>
+  </header>
+
+  <main>
+    <p id="pesan" class="pesan" role="alert" hidden></p>
+
+    <!-- Beranda -->
+    <section id="layar-beranda" hidden>
+      <h1>Halo! Siap latihan matematika? 👋</h1>
+      <p class="redup">Setiap latihan berisi <b>20 soal baru</b>. Nilaimu langsung dihitung dan dicatat.</p>
+
+      <div id="lanjut" class="kartu lanjut" hidden>
+        <span>Kamu punya latihan yang belum selesai.</span>
+        <a class="tombol kecil" href="#/latihan">Lanjutkan</a>
+      </div>
+
+      <label class="isian">
+        <span>Nama kamu</span>
+        <input id="nama" type="text" maxlength="40" placeholder="Tulis namamu di sini" autocomplete="off">
+      </label>
+
+      <h2>Pilih topik latihan</h2>
+      <div id="daftar-topik" class="kisi-topik" role="radiogroup" aria-label="Topik latihan"></div>
+
+      <div class="tengah">
+        <button id="mulai" class="tombol besar" disabled>Mulai Latihan</button>
+      </div>
+    </section>
+
+    <!-- Latihan -->
+    <section id="layar-latihan" hidden>
+      <div class="baris-atas">
+        <b id="l-topik"></b>
+        <span id="l-posisi"></span>
+        <span id="l-waktu" class="waktu" title="Lama mengerjakan"></span>
+      </div>
+      <div class="batang" aria-hidden="true"><div id="l-batang"></div></div>
+
+      <div class="kartu soal">
+        <p id="l-teks" class="teks-soal"></p>
+        <div id="l-pilihan" class="pilihan" role="radiogroup" aria-label="Pilihan jawaban"></div>
+      </div>
+
+      <div class="baris-tombol">
+        <button id="l-sebelum" class="tombol garis">◀ Sebelumnya</button>
+        <button id="l-berikut" class="tombol">Berikutnya ▶</button>
+      </div>
+
+      <div id="l-nomor" class="nomor" aria-label="Lompat ke nomor soal"></div>
+      <div class="tengah">
+        <button id="l-selesai" class="tombol besar hijau">Selesai &amp; Lihat Nilai</button>
+      </div>
+    </section>
+
+    <!-- Hasil -->
+    <section id="layar-hasil" hidden>
+      <div class="kartu nilai-kartu">
+        <div id="h-bintang" class="bintang"></div>
+        <h1 id="h-predikat"></h1>
+        <div id="h-nilai" class="nilai-bulat"></div>
+        <p id="h-info" class="redup"></p>
+        <p id="h-rinci"></p>
+        <div class="baris-tombol tengah">
+          <a class="tombol" href="#/">Latihan Baru</a>
+          <a class="tombol garis" href="#/riwayat">Lihat Riwayat</a>
+        </div>
+      </div>
+      <h2>Pembahasan</h2>
+      <ol id="h-daftar" class="pembahasan"></ol>
+    </section>
+
+    <!-- Riwayat -->
+    <section id="layar-riwayat" hidden>
+      <h1>Riwayat Latihan 📒</h1>
+      <div class="ringkasan">
+        <div class="kartu"><span>Jumlah latihan</span><b id="r-jumlah">–</b></div>
+        <div class="kartu"><span>Rata-rata nilai</span><b id="r-rata">–</b></div>
+        <div class="kartu"><span>Nilai terbaik</span><b id="r-terbaik">–</b></div>
+      </div>
+      <p id="r-kosong" class="kartu tengah" hidden>Belum ada latihan yang selesai. <a href="#/">Mulai latihan pertamamu!</a></p>
+      <div id="r-bungkus" class="kartu gulir" hidden>
+        <table>
+          <thead><tr><th>Tanggal</th><th>Nama</th><th>Topik</th><th>Benar</th><th>Nilai</th><th>Waktu</th><th></th></tr></thead>
+          <tbody id="r-isi"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
