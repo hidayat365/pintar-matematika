@@ -37,6 +37,7 @@ Mengacu pada materi matematika kelas 4 SD:
 | `kpk-fpb` | Faktor, Kelipatan, KPK & FPB | faktor, kelipatan, bilangan prima, faktorisasi prima, KPK, FPB |
 | `pembulatan` | Nilai Tempat & Pembulatan | nilai tempat, nilai angka, pembulatan, penaksiran, membandingkan bilangan |
 | `keliling-luas` | Keliling & Luas Bangun Datar | persegi, persegi panjang, segitiga |
+| `bangun-datar` | Bangun Datar | jenis kurva (terbuka/tertutup, sederhana/tidak sederhana); segi banyak beraturan dan tidak beraturan; segitiga dan segiempat (jenis, sifat, nama); komposisi dan dekomposisi bangun datar — sebagian soal bergambar |
 | `pengukuran` | Pengukuran | satuan panjang, berat, waktu, volume, kuantitas (lusin, kodi, rim) |
 | `soal-cerita` | Soal Cerita | soal cerita satu dan dua langkah, termasuk uang |
 | `campuran` | Campuran Semua Topik | 20 soal diambil merata dari semua topik di atas |
@@ -47,6 +48,9 @@ Mengacu pada materi matematika kelas 4 SD:
 - Angka diacak setiap kali, sehingga latihan berikutnya hampir pasti berbeda.
 - Setiap soal punya **4 pilihan yang berbeda**, tepat satu yang benar. Pilihan
   pengecoh dibuat dari kesalahan yang umum (mis. luas tertukar dengan keliling).
+- Soal boleh disertai **gambar** (SVG yang digambar oleh server, mis. kurva, segi banyak,
+  bangun yang diuraikan dengan garis putus-putus). Gambar yang sama tidak muncul dua kali
+  dalam satu latihan.
 - Setiap soal punya **pembahasan singkat** yang ditampilkan setelah dinilai.
 - Bilangan ditulis dengan gaya Indonesia: `12.500`, desimal `0,25`.
 
@@ -200,7 +204,7 @@ Latihan yang sudah dikumpulkan tidak bisa dikumpulkan ulang (nilai tidak bisa di
 | `topik` | TEXT | kode topik |
 | `dibuat` | TEXT | waktu mulai (ISO) |
 | `selesai` | TEXT, boleh kosong | waktu dikumpulkan; kosong = belum selesai |
-| `soal` | TEXT (JSON) | 20 soal lengkap dengan pilihan, kunci, pembahasan |
+| `soal` | TEXT (JSON) | 20 soal lengkap dengan pilihan, kunci, pembahasan, dan gambar (bila ada) |
 | `jawaban` | TEXT (JSON) | jawaban siswa |
 | `benar` | INTEGER | jumlah benar |
 | `nilai` | INTEGER | 0–100 |

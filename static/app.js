@@ -155,6 +155,8 @@ function gambarSoal() {
   $("l-posisi").textContent = `Soal ${i + 1} dari ${n}`;
   $("l-batang").style.width = `${(terjawab / n) * 100}%`;
   $("l-teks").innerHTML = `${i + 1}. ${matematika(s.teks)}`;
+  $("l-gambar").innerHTML = s.gambar || "";   // SVG buatan server sendiri
+  $("l-gambar").hidden = !s.gambar;
 
   $("l-pilihan").replaceChildren(...s.pilihan.map((p, k) => {
     const b = document.createElement("button");
@@ -237,6 +239,7 @@ async function bukaHasil(id) {
       : `${HURUF[s.jawaban]}. ${matematika(s.pilihan[s.jawaban])}`;
     li.innerHTML =
       `<p class="tanya">${i + 1}. ${matematika(s.teks)}</p>` +
+      (s.gambar ? `<div class="gambar kecil">${s.gambar}</div>` : "") +
       `<p><span class="lencana ${benar ? "benar" : "salah"}">${benar ? "✔ Benar" : "✘ Salah"}</span> ` +
       `Jawabanmu: <b>${jawabanmu}</b></p>` +
       (benar ? "" : `<p>Jawaban benar: <b>${HURUF[s.benar]}. ${matematika(s.pilihan[s.benar])}</b></p>`) +

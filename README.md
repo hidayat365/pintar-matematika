@@ -8,8 +8,8 @@ Repositori ini berisi dua program belajar matematika:
 ## Aplikasi Latihan Soal SD Kelas 4
 
 - 20 soal pilihan ganda yang selalu baru setiap kali latihan
-- 10 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
-  nilai tempat & pembulatan, keliling & luas, pengukuran, soal cerita, dan campuran
+- 11 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
+  nilai tempat & pembulatan, keliling & luas, bangun datar, pengukuran, soal cerita, dan campuran
 - Nilai langsung dihitung, lengkap dengan pembahasan tiap soal
 - Semua hasil latihan tercatat dan bisa dilihat di halaman Riwayat
 
