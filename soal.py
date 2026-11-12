@@ -24,6 +24,8 @@ TOPIK = [
      "ket": "Nilai tempat, pembulatan, penaksiran"},
     {"kode": "keliling-luas", "nama": "Keliling & Luas", "ikon": "📐",
      "ket": "Persegi, persegi panjang, segitiga"},
+    {"kode": "bangun-datar", "nama": "Bangun Datar", "ikon": "🔷",
+     "ket": "Sifat bangun datar, sudut, simetri"},
     {"kode": "pengukuran", "nama": "Pengukuran", "ikon": "📏",
      "ket": "Satuan panjang, berat, waktu, volume"},
     {"kode": "soal-cerita", "nama": "Soal Cerita", "ikon": "📖",
@@ -572,6 +574,149 @@ def kl_cerita(r):
                  salah=[2 * (p + l), p + l], satuan=" m²")
 
 
+# --------------------------------------------------------------- bangun datar
+
+_SISI = {"segitiga": 3, "persegi": 4, "persegi panjang": 4, "jajargenjang": 4, "trapesium": 4,
+         "belah ketupat": 4, "layang-layang": 4, "segi lima": 5, "segi enam": 6, "segi delapan": 8}
+
+_SIMETRI = {"persegi": 4, "persegi panjang": 2, "segitiga sama sisi": 3, "segitiga sama kaki": 1,
+            "belah ketupat": 2, "layang-layang": 1, "jajargenjang": 0, "trapesium sama kaki": 1,
+            "segi lima beraturan": 5, "segi enam beraturan": 6}
+
+_CIRI = {
+    "persegi": "memiliki empat sisi sama panjang dan empat sudut siku-siku",
+    "persegi panjang": "memiliki empat sudut siku-siku dan sisi yang berhadapan sama panjang, "
+                       "tetapi panjang dan lebarnya berbeda",
+    "belah ketupat": "memiliki empat sisi sama panjang, tetapi sudut-sudutnya tidak siku-siku",
+    "trapesium": "memiliki empat sisi dan tepat satu pasang sisi sejajar",
+    "jajargenjang": "memiliki dua pasang sisi sejajar, sudut-sudutnya tidak siku-siku, "
+                    "dan sisi yang berdekatan tidak sama panjang",
+    "layang-layang": "memiliki dua pasang sisi berdekatan yang sama panjang dan tidak memiliki sisi sejajar",
+    "segitiga": "memiliki tiga sisi dan tiga titik sudut",
+    "lingkaran": "tidak memiliki titik sudut dan semua titik pada tepinya berjarak sama dari titik pusat",
+}
+
+_SIFAT = {  # bangun: (pernyataan benar, pernyataan salah)
+    "persegi": (
+        ["Keempat sisinya sama panjang", "Keempat sudutnya siku-siku", "Memiliki 4 sumbu simetri"],
+        ["Memiliki tepat satu pasang sisi sejajar", "Memiliki 3 titik sudut", "Semua sudutnya lancip",
+         "Tidak memiliki sumbu simetri", "Memiliki 5 sisi"]),
+    "persegi panjang": (
+        ["Sisi-sisi yang berhadapan sama panjang", "Keempat sudutnya siku-siku", "Memiliki 2 sumbu simetri"],
+        ["Semua sudutnya tumpul", "Memiliki 5 sisi", "Tidak memiliki sisi sejajar",
+         "Memiliki 3 titik sudut", "Semua sudutnya lancip"]),
+    "segitiga sama sisi": (
+        ["Ketiga sisinya sama panjang", "Ketiga sudutnya sama besar", "Memiliki 3 sumbu simetri"],
+        ["Memiliki satu sudut siku-siku", "Memiliki 4 titik sudut", "Memiliki sepasang sisi sejajar",
+         "Hanya dua sisinya yang sama panjang", "Memiliki satu sudut tumpul"]),
+    "belah ketupat": (
+        ["Keempat sisinya sama panjang", "Sudut-sudut yang berhadapan sama besar", "Memiliki 2 sumbu simetri"],
+        ["Memiliki 3 sisi", "Tidak memiliki sisi sejajar", "Hanya memiliki satu pasang sisi sejajar",
+         "Memiliki 5 titik sudut"]),
+    "jajargenjang": (
+        ["Sisi-sisi yang berhadapan sejajar dan sama panjang", "Sudut-sudut yang berhadapan sama besar"],
+        ["Memiliki 3 titik sudut", "Hanya memiliki satu pasang sisi sejajar", "Tidak memiliki sisi sejajar",
+         "Memiliki 6 sisi"]),
+    "trapesium": (
+        ["Memiliki tepat satu pasang sisi sejajar", "Memiliki 4 sisi dan 4 titik sudut"],
+        ["Memiliki dua pasang sisi sejajar", "Memiliki 3 sisi", "Tidak memiliki sisi sejajar",
+         "Memiliki 5 titik sudut"]),
+    "layang-layang": (
+        ["Memiliki dua pasang sisi berdekatan yang sama panjang", "Memiliki 1 sumbu simetri"],
+        ["Memiliki dua pasang sisi sejajar", "Keempat sudutnya siku-siku", "Memiliki 3 titik sudut",
+         "Memiliki 4 sumbu simetri"]),
+}
+
+
+def bd_sisi(r):
+    bangun, n = r.choice(list(_SISI.items()))
+    apa = r.choice(["sisi", "titik sudut"])
+    return angka(r, f"Banyak {apa} pada bangun {bangun} adalah …", n,
+                 f"Bangun {bangun} memiliki {n} sisi dan {n} titik sudut",
+                 langkah=[1, 2, 3])
+
+
+def bd_simetri(r):
+    bangun, n = r.choice(list(_SIMETRI.items()))
+    bahas = (f"Bangun {bangun} tidak memiliki sumbu simetri lipat" if n == 0 else
+             f"Bangun {bangun} dapat dilipat tepat menutupi dirinya dengan {n} cara, jadi ada {n} sumbu simetri")
+    return angka(r, f"Banyak sumbu simetri lipat pada bangun {bangun} adalah …", n, bahas,
+                 langkah=[1, 2, 3])
+
+
+def bd_nama(r):
+    nama, ciri = r.choice(list(_CIRI.items()))
+    return teks_pilihan(r, f"Bangun datar yang {ciri} adalah …", nama,
+                        [n for n in _CIRI if n != nama],
+                        f"Ciri tersebut adalah ciri bangun {nama}")
+
+
+def bd_sifat(r):
+    bangun, (benar, salah) = r.choice(list(_SIFAT.items()))
+    return teks_pilihan(r, f"Pernyataan yang benar tentang bangun {bangun} adalah …",
+                        r.choice(benar), salah,
+                        f"Sifat {bangun}: {'; '.join(b.lower() for b in benar)}")
+
+
+def bd_jenis_sudut(r):
+    jenis = r.choice(["lancip"] * 4 + ["tumpul"] * 4 + ["siku-siku", "lurus"])
+    n = {"lancip": r.randint(10, 89), "tumpul": r.randint(91, 179), "siku-siku": 90, "lurus": 180}[jenis]
+    return teks_pilihan(r, f"Sudut yang besarnya {n}° termasuk sudut …", jenis,
+                        [j for j in ("lancip", "siku-siku", "tumpul", "lurus") if j != jenis],
+                        "Sudut lancip kurang dari 90°, sudut siku-siku tepat 90°, "
+                        "sudut tumpul antara 90° dan 180°, sudut lurus tepat 180°")
+
+
+def bd_sudut_segitiga(r):
+    a = r.randrange(20, 105, 5)
+    b = r.randrange(20, 180 - a - 15, 5)
+    c = 180 - a - b
+    return angka(r, f"Dua sudut sebuah segitiga besarnya {a}° dan {b}°. Besar sudut yang ketiga adalah …", c,
+                 f"Jumlah ketiga sudut segitiga 180°. Jadi 180° − {a}° − {b}° = {c}°",
+                 salah=[a + b, 360 - a - b, c + 10, c - 10, 90], satuan="°")
+
+
+def bd_jenis_segitiga(r):
+    jenis = r.choice(["sama sisi", "sama kaki", "sembarang"])
+    while True:
+        if jenis == "sama sisi":
+            sisi = [r.randint(3, 20)] * 3
+        elif jenis == "sama kaki":
+            k = r.randint(4, 20)
+            sisi = [k, k, r.choice([x for x in range(2, 2 * k) if x != k])]
+        else:
+            sisi = sorted(r.sample(range(3, 21), 3))
+        a, b, c = sorted(sisi)
+        if a + b > c and a * a + b * b != c * c:
+            break
+    r.shuffle(sisi)
+    alasan = {"sama sisi": "Ketiga sisinya sama panjang", "sama kaki": "Tepat dua sisinya sama panjang",
+              "sembarang": "Ketiga sisinya berbeda panjang"}[jenis]
+    return teks_pilihan(
+        r, f"Segitiga dengan panjang sisi {sisi[0]} cm, {sisi[1]} cm, dan {sisi[2]} cm termasuk segitiga …",
+        jenis, [j for j in ("sama sisi", "sama kaki", "sembarang", "siku-siku") if j != jenis],
+        f"{alasan}, jadi termasuk segitiga {jenis}")
+
+
+def bd_sisi_berhadapan(r):
+    bangun = r.choice(["persegi panjang", "jajargenjang"])
+    y = r.randint(3, 20)
+    x = y + r.randint(2, 15)
+    tanya, jawab, pasangan = r.choice([("CD", x, "AB"), ("AD", y, "BC")])
+    return angka(r, f"Pada {bangun} ABCD, panjang AB = {x} cm dan BC = {y} cm. Panjang {tanya} adalah …", jawab,
+                 f"Pada {bangun}, sisi yang berhadapan sama panjang. {tanya} berhadapan dengan {pasangan}, "
+                 f"jadi {tanya} = {jawab} cm",
+                 salah=[x, y, x + y, x - y if x - y != jawab else 2 * jawab], satuan=" cm")
+
+
+def bd_jam(r):
+    h = r.randint(1, 6)
+    return angka(r, f"Besar sudut terkecil yang dibentuk kedua jarum jam pada pukul {h:02d}.00 adalah …", 30 * h,
+                 f"Jarak antarangka pada jam adalah 30°. Pada pukul {h:02d}.00 kedua jarum terpisah {h} angka, "
+                 f"jadi {h} × 30° = {30 * h}°",
+                 salah=[30 * k for k in range(1, 7)] + [h * 10, h * 15], satuan="°")
+
+
 # ----------------------------------------------------------------- pengukuran
 
 _KONVERSI = [  # (satuan besar, satuan kecil, faktor, batas atas bilangan)
@@ -752,6 +897,8 @@ PEMBANGKIT = {
     "pembulatan": [nt_bulat, nt_nilai_angka, nt_tempat, nt_taksir, nt_banding, nt_panjang],
     "keliling-luas": [kl_keliling_persegi, kl_luas_persegi, kl_keliling_pp, kl_luas_pp, kl_sisi_persegi,
                       kl_lebar_pp, kl_keliling_segitiga, kl_luas_segitiga, kl_cerita],
+    "bangun-datar": [bd_sisi, bd_simetri, bd_nama, bd_sifat, bd_jenis_sudut, bd_sudut_segitiga,
+                     bd_jenis_segitiga, bd_sisi_berhadapan, bd_jam],
     "pengukuran": [uk_turun, uk_naik, uk_gabung, uk_waktu, uk_banding],
     "soal-cerita": [sc_tambah, sc_kurang, sc_kali, sc_bagi, sc_harga, sc_kembalian, sc_dua_langkah,
                     sc_bus, sc_tabung, sc_rata, sc_lari],

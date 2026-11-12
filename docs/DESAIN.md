@@ -37,6 +37,7 @@ Mengacu pada materi matematika kelas 4 SD:
 | `kpk-fpb` | Faktor, Kelipatan, KPK & FPB | faktor, kelipatan, bilangan prima, faktorisasi prima, KPK, FPB |
 | `pembulatan` | Nilai Tempat & Pembulatan | nilai tempat, nilai angka, pembulatan, penaksiran, membandingkan bilangan |
 | `keliling-luas` | Keliling & Luas Bangun Datar | persegi, persegi panjang, segitiga |
+| `bangun-datar` | Bangun Datar | sifat bangun datar, nama bangun dari cirinya, sumbu simetri, jenis sudut, jenis segitiga, sudut segitiga |
 | `pengukuran` | Pengukuran | satuan panjang, berat, waktu, volume, kuantitas (lusin, kodi, rim) |
 | `soal-cerita` | Soal Cerita | soal cerita satu dan dua langkah, termasuk uang |
 | `campuran` | Campuran Semua Topik | 20 soal diambil merata dari semua topik di atas |

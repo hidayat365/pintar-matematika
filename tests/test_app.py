@@ -92,7 +92,7 @@ class UjiApi(unittest.TestCase):
     def test_alur_lengkap(self):
         status, topik = self.minta("/api/topik")
         self.assertEqual(status, 200)
-        self.assertEqual(len(topik["topik"]), 10)
+        self.assertEqual(len(topik["topik"]), 11)
 
         status, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "pecahan"})
         self.assertEqual(status, 200)
