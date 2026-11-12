@@ -1,3 +1,44 @@
+# 🧮 Pintar Matematika
+
+Repositori ini berisi dua program belajar matematika:
+
+1. **Pintar Matematika** — aplikasi web latihan soal matematika SD kelas 4 (di bawah ini).
+2. **Math Guru AI** — asisten tanya-jawab matematika di terminal ([lihat di bawah](#-math-guru-ai)).
+
+## Aplikasi Latihan Soal SD Kelas 4
+
+- 20 soal pilihan ganda yang selalu baru setiap kali latihan
+- 10 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
+  nilai tempat & pembulatan, keliling & luas, pengukuran, soal cerita, dan campuran
+- Nilai langsung dihitung, lengkap dengan pembahasan tiap soal
+- Semua hasil latihan tercatat dan bisa dilihat di halaman Riwayat
+
+### Menjalankan
+
+Hanya butuh Python 3.9+ — tidak ada yang perlu di-`pip install`.
+
+```bash
+python3 app.py
+```
+
+Lalu buka <http://localhost:8000> di browser.
+
+| Pilihan | Kegunaan |
+|---|---|
+| `--port 9000` | memakai port lain |
+| `--host 0.0.0.0` | agar bisa dibuka dari HP/komputer lain di jaringan yang sama |
+| `--db lokasi/berkas.db` | lokasi penyimpanan hasil latihan (bawaan: `data/latihan.db`) |
+
+### Uji otomatis
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Rancangan lengkap (layar, API, model data) ada di [docs/DESAIN.md](docs/DESAIN.md).
+
+---
+
 # 🎯 Math Guru AI
 
 Asisten pembelajaran matematika pintar yang ditenagai oleh Google Gemini AI. Dirancang untuk membantu siswa memahami konsep matematika dengan cara yang interaktif dan menyenangkan.
