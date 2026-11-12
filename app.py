@@ -91,7 +91,7 @@ def ambil_latihan(db, id_latihan):
             "nama_topik": bank.nama_topik(b["topik"]), "dibuat": b["dibuat"],
             "selesai": b["selesai"]}
     if b["selesai"] is None:
-        data["soal"] = [{"teks": s["teks"], "pilihan": s["pilihan"]} for s in daftar]
+        data["soal"] = [{k: s[k] for k in ("teks", "gambar", "pilihan") if k in s} for s in daftar]
         return data
     jawaban = json.loads(b["jawaban"])
     data.update(benar=b["benar"], nilai=b["nilai"], durasi=b["durasi"],

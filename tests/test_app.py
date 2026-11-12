@@ -20,12 +20,13 @@ class UjiSoal(unittest.TestCase):
             for benih in range(150):
                 daftar = soal.buat_latihan(kode, rng=random.Random(benih))
                 self.assertEqual(len(daftar), 20, kode)
-                self.assertEqual(len({s["teks"] for s in daftar}), 20, kode)
+                self.assertEqual(len({(s["teks"], s.get("gambar")) for s in daftar}), 20, kode)
                 for s in daftar:
                     self.assertEqual(len(s["pilihan"]), 4, s)
                     self.assertEqual(len(set(s["pilihan"])), 4, s)
                     self.assertIn(s["benar"], range(4), s)
                     self.assertTrue(s["pembahasan"], s)
+                    self.assertNotIn("kunci", s)
 
     def test_setiap_pembangkit_berjalan(self):
         r = random.Random(7)
@@ -34,6 +35,26 @@ class UjiSoal(unittest.TestCase):
                 for _ in range(300):
                     s = buat(r)
                     self.assertEqual(len(set(s["pilihan"])), 4, (buat.__name__, s))
+
+    def test_soal_bergambar_sah_dan_tidak_berulang(self):
+        from xml.dom.minidom import parseString
+        ada = 0
+        for benih in range(60):
+            daftar = soal.buat_latihan("bangun-datar", rng=random.Random(benih))
+            gambar = [s["gambar"] for s in daftar if "gambar" in s]
+            ada += len(gambar)
+            self.assertEqual(len(gambar), len(set(gambar)))
+            for g in gambar:
+                parseString(g)                      # SVG harus XML yang sah
+            self.assertTrue(all("kunci" not in s for s in daftar))
+        self.assertGreater(ada, 0)
+
+    def test_bangun_datar_mencakup_semua_subtopik(self):
+        nama = {f.__name__ for f in soal.PEMBANGKIT["bangun-datar"]}
+        for wajib in ("bd_kurva_gambar", "bd_segi_banyak_gambar", "bd_segi_banyak_teori",
+                      "bd_jenis_segitiga", "bd_segiempat_gambar", "bd_dekomposisi_segitiga",
+                      "bd_komposisi_persegi", "bd_susun_gambar"):
+            self.assertIn(wajib, nama)
 
     def test_latihan_berikutnya_berbeda(self):
         a = [s["teks"] for s in soal.buat_latihan("perkalian")]

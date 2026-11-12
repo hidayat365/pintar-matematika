@@ -157,3 +157,10 @@ td a { color: var(--utama); font-weight: 700; text-decoration: none; }
   .nomor { grid-template-columns: repeat(5, 1fr); }
   .ringkasan b { font-size: 1.4rem; }
 }
+
+/* Gambar soal */
+.gambar { margin: 0 0 18px; text-align: center; }
+.gambar svg { width: 100%; max-width: 300px; height: auto; background: #fafbff;
+  border: 1px solid var(--garis); border-radius: 12px; }
+.gambar.kecil { text-align: left; margin: 6px 0; }
+.gambar.kecil svg { max-width: 170px; }

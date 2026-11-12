@@ -2,10 +2,11 @@
 
 Setiap pembangkit menerima objek ``random.Random`` dan mengembalikan dict:
     {"teks": str, "pilihan": [str × 4], "benar": indeks, "pembahasan": str}
+ditambah "gambar" (SVG) bila soalnya bergambar.
 """
 
 import random
-from math import gcd
+from math import cos, gcd, hypot, radians, sin
 
 JUMLAH_SOAL = 20
 
@@ -25,7 +26,7 @@ TOPIK = [
     {"kode": "keliling-luas", "nama": "Keliling & Luas", "ikon": "📐",
      "ket": "Persegi, persegi panjang, segitiga"},
     {"kode": "bangun-datar", "nama": "Bangun Datar", "ikon": "🔷",
-     "ket": "Sifat bangun datar, sudut, simetri"},
+     "ket": "Kurva, segi banyak, segitiga & segiempat, komposisi"},
     {"kode": "pengukuran", "nama": "Pengukuran", "ikon": "📏",
      "ket": "Satuan panjang, berat, waktu, volume"},
     {"kode": "soal-cerita", "nama": "Soal Cerita", "ikon": "📖",
@@ -628,6 +629,373 @@ _SIFAT = {  # bangun: (pernyataan benar, pernyataan salah)
 }
 
 
+# Gambar soal dibuat sebagai SVG di server; kolom "gambar" bersifat opsional.
+
+def _svg(isi):
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" '
+            'aria-label="Gambar soal" fill="none" stroke="#3b5bdb" stroke-width="3" '
+            'stroke-linejoin="round" stroke-linecap="round">' + isi + '</svg>')
+
+
+def _poli(titik, isi="#e3e9ff"):
+    pts = " ".join(f"{x:.1f},{y:.1f}" for x, y in titik)
+    return f'<polygon points="{pts}" fill="{isi}"/>'
+
+
+def _putus(a, b):
+    return (f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" '
+            f'stroke-dasharray="6 5" stroke-width="2"/>')
+
+
+def _titik_poligon(n, skala=None, geser=None, jari=62, cx=110, cy=76):
+    awal = -90 + (180 / n if n % 2 == 0 else 0)
+    hasil = []
+    for i in range(n):
+        t = radians(awal + 360 * i / n + (geser[i] if geser else 0))
+        j = jari * (skala[i] if skala else 1)
+        hasil.append((cx + j * cos(t), cy + j * sin(t)))
+    return hasil
+
+
+def _bergambar(soal, gambar, kunci):
+    soal["gambar"] = _svg(gambar)
+    soal["kunci"] = kunci        # penanda agar gambar yang sama tidak muncul dua kali
+    return soal
+
+
+# -- jenis kurva
+
+_JENIS_KURVA = ["terbuka sederhana", "terbuka tidak sederhana",
+                "tertutup sederhana", "tertutup tidak sederhana"]
+
+_ALASAN_KURVA = {
+    "terbuka sederhana": "Ujung-ujung kurva tidak bertemu (terbuka) dan kurva tidak memotong dirinya sendiri (sederhana)",
+    "terbuka tidak sederhana": "Ujung-ujung kurva tidak bertemu (terbuka), tetapi kurva memotong dirinya sendiri (tidak sederhana)",
+    "tertutup sederhana": "Ujung-ujung kurva bertemu (tertutup) dan kurva tidak memotong dirinya sendiri (sederhana)",
+    "tertutup tidak sederhana": "Ujung-ujung kurva bertemu (tertutup), tetapi kurva memotong dirinya sendiri (tidak sederhana)",
+}
+
+_BINTANG = " ".join(f"{110 + 62 * cos(radians(-90 + 144 * i)):.1f},{78 + 62 * sin(radians(-90 + 144 * i)):.1f}"
+                    for i in range(5))
+
+_GAMBAR_KURVA = [
+    ("terbuka sederhana", '<path d="M20 95 C60 15 90 15 110 75 S170 130 200 50"/>'),
+    ("terbuka sederhana", '<path d="M40 25 C40 140 180 140 180 25"/>'),
+    ("terbuka sederhana", '<polyline points="20,115 60,40 100,105 140,40 195,95"/>'),
+    ("terbuka sederhana", '<path d="M170 40 C120 5 45 30 45 75 C45 125 130 135 170 105"/>'),
+    ("terbuka tidak sederhana", '<path d="M20 110 C90 110 160 20 110 20 C60 20 130 110 200 110"/>'),
+    ("terbuka tidak sederhana", '<polyline points="30,120 175,40 175,120 45,35"/>'),
+    ("terbuka tidak sederhana", '<polyline points="35,30 190,115 190,30 35,115"/>'),
+    ("terbuka tidak sederhana", '<path d="M25 40 C150 40 150 125 105 125 C60 125 60 40 195 40"/>'),
+    ("tertutup sederhana", '<ellipse cx="110" cy="75" rx="78" ry="48"/>'),
+    ("tertutup sederhana", '<path d="M60 40 C100 0 185 30 172 82 C160 135 90 135 50 112 C18 95 28 60 60 40 Z"/>'),
+    ("tertutup sederhana", '<polygon points="40,105 70,30 130,18 188,70 150,128"/>'),
+    ("tertutup sederhana", '<path d="M110 48 C140 8 198 42 160 88 L110 132 L60 88 C22 42 80 8 110 48 Z"/>'),
+    ("tertutup tidak sederhana",
+     '<path d="M110 75 C150 20 202 40 202 75 C202 110 150 130 110 75 C70 20 18 40 18 75 C18 110 70 130 110 75 Z"/>'),
+    ("tertutup tidak sederhana", '<polygon points="35,30 190,118 190,30 35,118"/>'),
+    ("tertutup tidak sederhana", f'<polygon points="{_BINTANG}"/>'),
+    ("tertutup tidak sederhana", '<polygon points="60,20 160,20 60,130 160,130"/>'),
+]
+
+_TEORI_KURVA = [
+    ("Kurva yang ujung-ujungnya saling bertemu disebut kurva …", "tertutup",
+     ["terbuka", "sederhana", "tidak sederhana"],
+     "Kurva tertutup adalah kurva yang titik awal dan titik akhirnya bertemu"),
+    ("Kurva yang ujung-ujungnya tidak saling bertemu disebut kurva …", "terbuka",
+     ["tertutup", "sederhana", "tidak sederhana"],
+     "Kurva terbuka adalah kurva yang titik awal dan titik akhirnya tidak bertemu"),
+    ("Kurva yang tidak memotong dirinya sendiri disebut kurva …", "sederhana",
+     ["tidak sederhana", "terbuka", "tertutup"],
+     "Kurva sederhana tidak memiliki titik potong dengan dirinya sendiri"),
+    ("Kurva yang memotong dirinya sendiri disebut kurva …", "tidak sederhana",
+     ["sederhana", "terbuka", "tertutup"],
+     "Kurva tidak sederhana memiliki titik potong dengan dirinya sendiri"),
+]
+
+_CONTOH_KURVA = [
+    ("Lingkaran", "tertutup sederhana"), ("Bentuk angka 8", "tertutup tidak sederhana"),
+    ("Bentuk huruf C", "terbuka sederhana"), ("Bentuk huruf S", "terbuka sederhana"),
+    ("Bentuk huruf U", "terbuka sederhana"), ("Bentuk huruf O", "tertutup sederhana"),
+    ("Sisi-sisi sebuah segitiga", "tertutup sederhana"),
+    ("Sisi-sisi sebuah persegi panjang", "tertutup sederhana"),
+]
+
+
+def bd_kurva_gambar(r):
+    i = r.randrange(len(_GAMBAR_KURVA))
+    jenis, gambar = _GAMBAR_KURVA[i]
+    soal = teks_pilihan(r, "Kurva pada gambar termasuk kurva …", jenis,
+                        [j for j in _JENIS_KURVA if j != jenis], _ALASAN_KURVA[jenis])
+    return _bergambar(soal, gambar, ("kurva", i))
+
+
+def bd_kurva_teori(r):
+    if r.random() < 0.4:
+        teks, jawab, salah, bahas = r.choice(_TEORI_KURVA)
+        return teks_pilihan(r, teks, jawab, salah, bahas)
+    contoh, jenis = r.choice(_CONTOH_KURVA)
+    return teks_pilihan(r, f"{contoh} termasuk contoh kurva …", jenis,
+                        [j for j in _JENIS_KURVA if j != jenis], _ALASAN_KURVA[jenis])
+
+
+# -- segi banyak beraturan dan tidak beraturan
+
+_NAMA_SEGI = {3: "segitiga", 4: "segi empat", 5: "segi lima", 6: "segi enam",
+              7: "segi tujuh", 8: "segi delapan"}
+
+
+def _sudut_jelas(titik):
+    """Benar bila tidak ada titik sudut yang nyaris lurus (agar sisi mudah dihitung)."""
+    n = len(titik)
+    for i in range(n):
+        (ax, ay), (bx, by), (cx, cy) = titik[i - 1], titik[i], titik[(i + 1) % n]
+        u, v = (ax - bx, ay - by), (cx - bx, cy - by)
+        kos = (u[0] * v[0] + u[1] * v[1]) / (hypot(*u) * hypot(*v))
+        if kos < -0.9 or hypot(*u) < 25:      # sudut > ±154° atau sisi terlalu pendek
+            return False
+    return True
+
+
+def _segi_banyak(r, n, beraturan):
+    if beraturan:
+        return _titik_poligon(n)
+    while True:
+        skala = [r.uniform(0.5, 1) for _ in range(n)]
+        titik = _titik_poligon(n, skala, [r.uniform(-0.2, 0.2) * 360 / n for _ in range(n)], jari=68)
+        if max(skala) / min(skala) >= 1.6 and _sudut_jelas(titik):
+            return titik
+
+
+def bd_segi_banyak_gambar(r):
+    n, beraturan = r.randint(3, 8), r.random() < 0.5
+    sifat = lambda b: "beraturan" if b else "tidak beraturan"
+    gambar = _poli(_segi_banyak(r, n, beraturan))
+    alasan = ("semua sisinya sama panjang dan semua sudutnya sama besar, jadi beraturan" if beraturan
+              else "sisi-sisinya tidak sama panjang, jadi tidak beraturan")
+    if r.random() < 0.7:
+        nama = lambda k, b: f"{_NAMA_SEGI[k]} {sifat(b)}"
+        lain = [k for k in (n - 1, n + 1) if k in _NAMA_SEGI]
+        soal = teks_pilihan(r, "Segi banyak pada gambar adalah …", nama(n, beraturan),
+                            [nama(n, not beraturan)] + [nama(k, b) for k in lain for b in (True, False)],
+                            f"Bangun tersebut memiliki {n} sisi dan {alasan}")
+        return _bergambar(soal, gambar, ("segi", n, beraturan))
+    soal = angka(r, "Banyak sisi segi banyak pada gambar adalah …", n,
+                 f"Hitung sisinya satu per satu: ada {n} sisi, jadi bangun itu {_NAMA_SEGI[n]}",
+                 langkah=[1, 2])
+    return _bergambar(soal, gambar, ("sisi", n, beraturan))
+
+
+_TEORI_SEGI = [
+    ("Segi banyak beraturan adalah segi banyak yang …",
+     "semua sisinya sama panjang dan semua sudutnya sama besar",
+     ["semua sisinya berupa garis lengkung", "memiliki tepat empat sisi",
+      "panjang sisi-sisinya berbeda-beda", "tidak memiliki titik sudut"],
+     "Segi banyak beraturan: semua sisi sama panjang dan semua sudut sama besar"),
+    ("Segi banyak tidak beraturan adalah segi banyak yang …",
+     "sisi-sisinya tidak semuanya sama panjang atau sudut-sudutnya tidak semuanya sama besar",
+     ["semua sisinya sama panjang dan semua sudutnya sama besar", "semua sisinya berupa garis lengkung",
+      "tidak memiliki sisi", "berupa kurva terbuka"],
+     "Jika ada sisi atau sudut yang berbeda ukurannya, segi banyak itu tidak beraturan"),
+    ("Segi banyak adalah kurva tertutup sederhana yang semua sisinya berupa …",
+     "garis lurus", ["garis lengkung", "lingkaran", "titik"],
+     "Segi banyak (poligon) dibatasi oleh ruas-ruas garis lurus"),
+]
+
+_BERATURAN = ["persegi", "segitiga sama sisi", "segi lima beraturan", "segi enam beraturan"]
+_TAK_BERATURAN = ["persegi panjang", "trapesium", "layang-layang", "jajargenjang",
+                  "segitiga siku-siku", "segitiga sembarang"]
+
+
+def bd_segi_banyak_teori(r):
+    pilih = r.randrange(4)
+    if pilih == 0:
+        teks, jawab, salah, bahas = r.choice(_TEORI_SEGI)
+        return teks_pilihan(r, teks, jawab, salah, bahas)
+    if pilih == 1:
+        j = r.choice(_BERATURAN)
+        return teks_pilihan(r, "Bangun berikut yang termasuk segi banyak beraturan adalah …", j,
+                            r.sample(_TAK_BERATURAN, 3),
+                            f"Pada {j}, semua sisi sama panjang dan semua sudut sama besar")
+    if pilih == 2:
+        j = r.choice(_TAK_BERATURAN)
+        return teks_pilihan(r, "Bangun berikut yang termasuk segi banyak tidak beraturan adalah …", j,
+                            r.sample(_BERATURAN, 3),
+                            f"Pada {j}, sisi-sisinya tidak semuanya sama panjang atau "
+                            f"sudut-sudutnya tidak semuanya sama besar")
+    j = r.choice(["lingkaran", "setengah lingkaran", "oval"])
+    return teks_pilihan(r, "Bangun berikut yang bukan segi banyak adalah …", j,
+                        r.sample(_BERATURAN + _TAK_BERATURAN, 3),
+                        f"Bangun {j} memiliki sisi lengkung, sedangkan segi banyak hanya dibatasi garis lurus")
+
+
+# -- segitiga dan segiempat
+
+_GAMBAR_SEGIEMPAT = {
+    "persegi": [(60, 25), (160, 25), (160, 125), (60, 125)],
+    "persegi panjang": [(30, 35), (190, 35), (190, 115), (30, 115)],
+    "jajargenjang": [(30, 120), (150, 120), (190, 35), (70, 35)],
+    "trapesium": [(25, 120), (195, 120), (150, 35), (80, 35)],
+    "belah ketupat": [(110, 25), (195, 75), (110, 125), (25, 75)],
+    "layang-layang": [(110, 12), (160, 55), (110, 140), (60, 55)],
+}
+
+
+def bd_segiempat_gambar(r):
+    nama, titik = r.choice(list(_GAMBAR_SEGIEMPAT.items()))
+    if r.random() < 0.5:
+        titik = [(220 - x, y) for x, y in titik]
+    soal = teks_pilihan(r, "Bangun segi empat pada gambar disebut …", nama,
+                        [n for n in _GAMBAR_SEGIEMPAT if n != nama],
+                        f"Bangun tersebut {_CIRI[nama]}, jadi disebut {nama}")
+    return _bergambar(soal, _poli(titik), ("segiempat", nama))
+
+
+def bd_segitiga_sudut(r):
+    jenis = r.choice(["lancip", "siku-siku", "tumpul"])
+    if jenis == "lancip":
+        while True:
+            a, b = r.randrange(50, 90, 5), r.randrange(50, 90, 5)
+            if (a, b) != (60, 60):
+                break
+    elif jenis == "siku-siku":
+        a, b = 90, r.randrange(20, 75, 5)
+    else:
+        a = r.randrange(95, 150, 5)
+        b = r.randrange(10, 180 - a - 5, 5)
+    sudut = [a, b, 180 - a - b]
+    r.shuffle(sudut)
+    alasan = {"lancip": "Ketiga sudutnya kurang dari 90°", "siku-siku": "Salah satu sudutnya tepat 90°",
+              "tumpul": "Salah satu sudutnya lebih dari 90°"}[jenis]
+    return teks_pilihan(
+        r, f"Segitiga dengan besar sudut {sudut[0]}°, {sudut[1]}°, dan {sudut[2]}° termasuk segitiga …",
+        jenis, [j for j in ("lancip", "siku-siku", "tumpul", "sama sisi") if j != jenis],
+        f"{alasan}, jadi termasuk segitiga {jenis}")
+
+
+# -- komposisi dan dekomposisi
+
+def bd_dekomposisi_segitiga(r):
+    n = r.randint(4, 8)
+    titik = _titik_poligon(n)
+    if r.random() < 0.5:
+        garis = [_putus((110, 76), t) for t in titik]
+        banyak, cara = n, "dari titik pusat ke setiap titik sudut"
+    else:
+        garis = [_putus(titik[0], t) for t in titik[2:-1]]
+        banyak, cara = n - 2, "dari satu titik sudut ke titik sudut lainnya"
+    soal = angka(r, f"Bangun {_NAMA_SEGI[n]} pada gambar diuraikan (didekomposisi) menjadi beberapa segitiga "
+                    f"dengan garis putus-putus. Banyak segitiga yang terbentuk adalah …", banyak,
+                 f"Garis ditarik {cara}. Hitung segitiganya: ada {banyak} segitiga",
+                 salah=[n, n - 2, n - 1, n + 1], langkah=[1, 2])
+    return _bergambar(soal, _poli(titik) + "".join(garis), ("dekomposisi", n, banyak))
+
+
+def bd_komposisi_persegi(r):
+    banyak = r.randint(4, 9)
+    sel = {(0, 0)}
+    while len(sel) < banyak:
+        x, y = r.choice(sorted(sel))
+        dx, dy = r.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
+        if 0 <= x + dx - min(c[0] for c in sel) < 6 and abs(x + dx) < 6 and 0 <= y + dy < 4:
+            sel.add((x + dx, y + dy))
+    x0, x1 = min(c[0] for c in sel), max(c[0] for c in sel)
+    y1 = max(c[1] for c in sel)
+    sisi = 30
+    ox, oy = 110 - (x1 - x0 + 1) * sisi / 2, 75 - (y1 + 1) * sisi / 2
+    kotak = "".join(f'<rect x="{ox + (x - x0) * sisi:.0f}" y="{oy + y * sisi:.0f}" width="{sisi}" '
+                    f'height="{sisi}" fill="#e3e9ff" stroke-width="2"/>' for x, y in sorted(sel))
+    soal = angka(r, "Bangun pada gambar disusun (dikomposisi) dari beberapa persegi yang sama besar. "
+                    "Banyak persegi penyusunnya adalah …", banyak,
+                 f"Hitung perseginya satu per satu: ada {banyak} persegi", langkah=[1, 2])
+    return _bergambar(soal, kotak, ("persegi", frozenset((x - x0, y) for x, y in sel)))
+
+
+_SEGI6 = _titik_poligon(6)
+
+_GAMBAR_SUSUN = [  # (jawaban, gambar)
+    ("1 persegi dan 1 segitiga",
+     _poli([(65, 60), (110, 12), (155, 60), (155, 140), (65, 140)]) + _putus((65, 60), (155, 60))),
+    ("1 persegi panjang dan 2 segitiga",
+     _poli([(10, 115), (45, 45), (175, 45), (210, 115)]) + _putus((45, 45), (45, 115)) + _putus((175, 45), (175, 115))),
+    ("2 segitiga",
+     _poli(_GAMBAR_SEGIEMPAT["belah ketupat"]) + _putus((25, 75), (195, 75))),
+    ("2 persegi",
+     _poli([(30, 35), (190, 35), (190, 115), (30, 115)]) + _putus((110, 35), (110, 115))),
+    ("6 segitiga",
+     _poli(_SEGI6) + "".join(_putus(_SEGI6[i], _SEGI6[i + 3]) for i in range(3))),
+    ("1 persegi panjang dan 1 segitiga",
+     _poli([(20, 45), (150, 45), (150, 20), (205, 75), (150, 130), (150, 105), (20, 105)])
+     + _putus((150, 45), (150, 105))),
+    ("4 persegi",
+     _poli([(55, 20), (165, 20), (165, 130), (55, 130)]) + _putus((110, 20), (110, 130)) + _putus((55, 75), (165, 75))),
+    ("4 segitiga",
+     _poli([(55, 20), (165, 20), (165, 130), (55, 130)]) + _putus((55, 20), (165, 130)) + _putus((165, 20), (55, 130))),
+    ("3 segitiga",
+     _poli([(30, 120), (70, 40), (150, 40), (190, 120)]) + _putus((70, 40), (110, 120)) + _putus((150, 40), (110, 120))),
+    ("1 persegi dan 2 segitiga",
+     _poli([(15, 115), (65, 35), (145, 35), (195, 115)]) + _putus((65, 35), (65, 115)) + _putus((145, 35), (145, 115))),
+]
+
+
+def bd_susun_gambar(r):
+    i = r.randrange(len(_GAMBAR_SUSUN))
+    jawab, gambar = _GAMBAR_SUSUN[i]
+    baku = lambda t: t.replace("persegi panjang", "persegi")   # persegi juga persegi panjang
+    lain = [j for j, _ in _GAMBAR_SUSUN if baku(j) != baku(jawab)]
+    soal = teks_pilihan(r, "Garis putus-putus menunjukkan cara menguraikan bangun pada gambar. "
+                           "Bangun tersebut tersusun dari …", jawab, lain,
+                        f"Hitung bangun-bangun penyusunnya: {jawab}")
+    return _bergambar(soal, gambar, ("susun", i))
+
+
+_TEORI_SUSUN = [
+    ("Sebuah persegi dipotong sepanjang salah satu diagonalnya. Hasilnya adalah dua bangun …",
+     "segitiga siku-siku", ["persegi", "persegi panjang", "trapesium", "segitiga sama sisi"],
+     "Diagonal membagi persegi menjadi dua segitiga siku-siku yang sama besar"),
+    ("Sebuah persegi panjang dipotong sepanjang salah satu diagonalnya. Hasilnya adalah dua bangun …",
+     "segitiga siku-siku", ["persegi", "persegi panjang", "trapesium", "segitiga sama sisi"],
+     "Diagonal membagi persegi panjang menjadi dua segitiga siku-siku yang sama besar"),
+    ("Dua persegi yang sama besar digabungkan dengan menghimpitkan salah satu sisinya. Bangun yang terbentuk adalah …",
+     "persegi panjang", ["persegi", "segitiga", "trapesium", "belah ketupat"],
+     "Dua persegi berdampingan membentuk persegi panjang yang panjangnya dua kali lebarnya"),
+    ("Dua segitiga sama sisi yang sama besar digabungkan dengan menghimpitkan salah satu sisinya. "
+     "Bangun yang terbentuk adalah …",
+     "belah ketupat", ["persegi", "persegi panjang", "trapesium", "segitiga"],
+     "Keempat sisi bangun gabungan sama panjang, jadi terbentuk belah ketupat"),
+    ("Tiga segitiga sama sisi yang sama besar disusun berjajar dan saling berhimpit sisinya. "
+     "Bangun yang terbentuk adalah …",
+     "trapesium", ["persegi", "persegi panjang", "belah ketupat", "segitiga"],
+     "Tiga segitiga sama sisi berjajar membentuk trapesium sama kaki"),
+    ("Enam segitiga sama sisi yang sama besar disusun mengelilingi satu titik pusat. Bangun yang terbentuk adalah …",
+     "segi enam beraturan", ["segi lima beraturan", "persegi", "belah ketupat", "segi delapan beraturan"],
+     "Enam segitiga sama sisi mengelilingi satu titik membentuk segi enam beraturan"),
+    ("Empat persegi yang sama besar disusun dua baris dan dua kolom. Bangun yang terbentuk adalah …",
+     "persegi", ["persegi panjang", "trapesium", "belah ketupat", "segi delapan"],
+     "Susunan 2 × 2 persegi membentuk persegi yang lebih besar"),
+    ("Sebuah belah ketupat dipotong sepanjang kedua diagonalnya. Banyak segitiga siku-siku yang terbentuk adalah …",
+     "4", ["2", "3", "6"],
+     "Kedua diagonal belah ketupat berpotongan tegak lurus dan membaginya menjadi 4 segitiga siku-siku"),
+    ("Sebuah trapesium sama kaki dapat diuraikan menjadi satu persegi panjang dan dua …",
+     "segitiga siku-siku", ["persegi", "segitiga sama sisi", "jajargenjang", "trapesium"],
+     "Tarik garis tegak dari kedua ujung sisi atas: terbentuk 1 persegi panjang dan 2 segitiga siku-siku"),
+    ("Sebuah jajargenjang dipotong sepanjang salah satu diagonalnya. Hasilnya adalah dua bangun …",
+     "segitiga", ["persegi", "trapesium", "persegi panjang", "belah ketupat"],
+     "Diagonal membagi jajargenjang menjadi dua segitiga yang sama besar"),
+    ("Menggabungkan beberapa bangun datar menjadi satu bangun baru disebut …",
+     "komposisi", ["dekomposisi", "simetri", "rotasi"],
+     "Komposisi = menyusun/menggabungkan bangun; dekomposisi = menguraikan bangun"),
+    ("Menguraikan satu bangun datar menjadi beberapa bangun yang lebih sederhana disebut …",
+     "dekomposisi", ["komposisi", "simetri", "rotasi"],
+     "Dekomposisi = menguraikan bangun; komposisi = menyusun/menggabungkan bangun"),
+]
+
+
+def bd_susun_teori(r):
+    teks, jawab, salah, bahas = r.choice(_TEORI_SUSUN)
+    return teks_pilihan(r, teks, jawab, salah, bahas)
+
+
 def bd_sisi(r):
     bangun, n = r.choice(list(_SISI.items()))
     apa = r.choice(["sisi", "titik sudut"])
@@ -656,15 +1024,6 @@ def bd_sifat(r):
     return teks_pilihan(r, f"Pernyataan yang benar tentang bangun {bangun} adalah …",
                         r.choice(benar), salah,
                         f"Sifat {bangun}: {'; '.join(b.lower() for b in benar)}")
-
-
-def bd_jenis_sudut(r):
-    jenis = r.choice(["lancip"] * 4 + ["tumpul"] * 4 + ["siku-siku", "lurus"])
-    n = {"lancip": r.randint(10, 89), "tumpul": r.randint(91, 179), "siku-siku": 90, "lurus": 180}[jenis]
-    return teks_pilihan(r, f"Sudut yang besarnya {n}° termasuk sudut …", jenis,
-                        [j for j in ("lancip", "siku-siku", "tumpul", "lurus") if j != jenis],
-                        "Sudut lancip kurang dari 90°, sudut siku-siku tepat 90°, "
-                        "sudut tumpul antara 90° dan 180°, sudut lurus tepat 180°")
 
 
 def bd_sudut_segitiga(r):
@@ -707,14 +1066,6 @@ def bd_sisi_berhadapan(r):
                  f"Pada {bangun}, sisi yang berhadapan sama panjang. {tanya} berhadapan dengan {pasangan}, "
                  f"jadi {tanya} = {jawab} cm",
                  salah=[x, y, x + y, x - y if x - y != jawab else 2 * jawab], satuan=" cm")
-
-
-def bd_jam(r):
-    h = r.randint(1, 6)
-    return angka(r, f"Besar sudut terkecil yang dibentuk kedua jarum jam pada pukul {h:02d}.00 adalah …", 30 * h,
-                 f"Jarak antarangka pada jam adalah 30°. Pada pukul {h:02d}.00 kedua jarum terpisah {h} angka, "
-                 f"jadi {h} × 30° = {30 * h}°",
-                 salah=[30 * k for k in range(1, 7)] + [h * 10, h * 15], satuan="°")
 
 
 # ----------------------------------------------------------------- pengukuran
@@ -897,8 +1248,17 @@ PEMBANGKIT = {
     "pembulatan": [nt_bulat, nt_nilai_angka, nt_tempat, nt_taksir, nt_banding, nt_panjang],
     "keliling-luas": [kl_keliling_persegi, kl_luas_persegi, kl_keliling_pp, kl_luas_pp, kl_sisi_persegi,
                       kl_lebar_pp, kl_keliling_segitiga, kl_luas_segitiga, kl_cerita],
-    "bangun-datar": [bd_sisi, bd_simetri, bd_nama, bd_sifat, bd_jenis_sudut, bd_sudut_segitiga,
-                     bd_jenis_segitiga, bd_sisi_berhadapan, bd_jam],
+    "bangun-datar": [
+        # jenis kurva
+        bd_kurva_gambar, bd_kurva_gambar, bd_kurva_teori,
+        # segi banyak beraturan dan tidak beraturan
+        bd_segi_banyak_gambar, bd_segi_banyak_gambar, bd_segi_banyak_teori, bd_sisi, bd_simetri,
+        # segitiga dan segiempat
+        bd_jenis_segitiga, bd_segitiga_sudut, bd_sudut_segitiga, bd_segiempat_gambar, bd_nama, bd_sifat,
+        bd_sisi_berhadapan,
+        # komposisi dan dekomposisi
+        bd_dekomposisi_segitiga, bd_komposisi_persegi, bd_susun_gambar, bd_susun_teori, bd_susun_teori,
+    ],
     "pengukuran": [uk_turun, uk_naik, uk_gabung, uk_waktu, uk_banding],
     "soal-cerita": [sc_tambah, sc_kurang, sc_kali, sc_bagi, sc_harga, sc_kembalian, sc_dua_langkah,
                     sc_bus, sc_tabung, sc_rata, sc_lari],
@@ -928,10 +1288,11 @@ def buat_latihan(topik, jumlah=JUMLAH_SOAL, rng=None):
     for kode in urutan:
         for _ in range(200):
             soal = r.choice(PEMBANGKIT[kode])(r)
-            if soal["teks"] not in terpakai:
+            kunci = soal.pop("kunci", soal["teks"])
+            if kunci not in terpakai and soal.get("gambar") not in terpakai:
                 break
         else:
             raise RuntimeError(f"gagal membuat soal unik untuk topik {kode}")
-        terpakai.add(soal["teks"])
+        terpakai.update({kunci, soal.get("gambar", kunci)})
         hasil.append(soal)
     return hasil
