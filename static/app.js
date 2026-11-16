@@ -105,7 +105,8 @@ async function bukaBeranda() {
       b.className = "pilih-mapel";
       b.dataset.kode = m.kode;
       b.setAttribute("role", "radio");
-      b.innerHTML = `<span aria-hidden="true">${aman(m.ikon)}</span> ${aman(m.nama)}`;
+      b.innerHTML = `<span aria-hidden="true">${aman(m.ikon)}</span> ${aman(m.nama)}` +
+        ` <small>${aman(m.kelas)}</small>`;
       b.addEventListener("click", () => pilihMapel(m.kode));
       return b;
     }));

@@ -2,16 +2,19 @@
 
 import soal
 import soal_inggris
+import soal_sunda
 
 JUMLAH_SOAL = soal.JUMLAH_SOAL
 
 _MAPEL = [
-    {"kode": "matematika", "nama": "Matematika", "ikon": "🧮", "modul": soal},
-    {"kode": "inggris", "nama": "Bahasa Inggris", "ikon": "📘", "modul": soal_inggris},
+    {"kode": "matematika", "nama": "Matematika", "kelas": "Kelas 4", "ikon": "🧮", "modul": soal},
+    {"kode": "inggris", "nama": "Bahasa Inggris", "kelas": "Kelas 4", "ikon": "📘", "modul": soal_inggris},
+    {"kode": "sunda", "nama": "Bahasa Sunda", "kelas": "Kelas 1", "ikon": "🎋", "modul": soal_sunda},
 ]
 
 # Untuk dikirim ke browser.
-MAPEL = [{"kode": m["kode"], "nama": m["nama"], "ikon": m["ikon"], "topik": m["modul"].TOPIK}
+MAPEL = [{"kode": m["kode"], "nama": m["nama"], "kelas": m["kelas"], "ikon": m["ikon"],
+          "topik": m["modul"].TOPIK}
          for m in _MAPEL]
 
 _INDEKS = {t["kode"]: (m, t) for m in _MAPEL for t in m["modul"].TOPIK}

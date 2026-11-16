@@ -193,3 +193,7 @@ th:nth-child(4), td:nth-child(4) { white-space: normal; min-width: 130px; }
 .tombol-teks { margin-top: 14px; background: none; border: 0; font: inherit; font-weight: 700;
   color: var(--merah); cursor: pointer; padding: 8px 12px; border-radius: 99px; }
 .tombol-teks:hover { background: var(--merah-muda); }
+
+/* Kelas pada pilihan mata pelajaran; bacaan berupa percakapan memakai baris baru */
+.pilih-mapel small { font-weight: 600; font-size: .78rem; opacity: .75; margin-left: 4px; }
+.bacaan { white-space: pre-line; }

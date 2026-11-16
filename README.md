@@ -7,7 +7,8 @@ Repositori ini berisi dua program belajar matematika:
 
 ## Aplikasi Latihan Soal SD Kelas 4
 
-- Dua mata pelajaran dalam satu aplikasi: **Matematika** dan **Bahasa Inggris**
+- Tiga mata pelajaran dalam satu aplikasi: **Matematika** dan **Bahasa Inggris** (kelas 4), serta
+  **Bahasa Sunda** (kelas 1)
 - 20 soal pilihan ganda yang selalu baru setiap kali latihan
 - Matematika — 11 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
   nilai tempat & pembulatan, keliling & luas, bangun datar, pengukuran, soal cerita, dan campuran
@@ -15,6 +16,8 @@ Repositori ini berisi dua program belajar matematika:
   (Unit 1–7 semester 1, Unit 8–12 semester 2), ditambah Semester 1 Review, Semester 2 Review, dan
   paket Latihan Tes Sumatif 3 sesuai kisi-kisi sekolah (soal berbahasa Inggris, pembahasan
   berbahasa Indonesia)
+- Bahasa Sunda kelas 1 — mengikuti buku Dinas Pendidikan Provinsi Jawa Barat *Pamekar Diajar Basa
+  Sunda*: satu topik per pangajaran (1–4 semester 1, 5–8 semester 2), ditambah gabungan tiap semester
 - Nilai langsung dihitung, lengkap dengan pembahasan tiap soal
 - Semua hasil latihan tercatat dan bisa dilihat di halaman Riwayat
 
