@@ -185,3 +185,11 @@ th:nth-child(4), td:nth-child(4) { white-space: normal; min-width: 130px; }
 .wajib { color: var(--merah); }
 .isian input.salah { border-color: var(--merah); }
 .isian .galat { display: block; margin-top: 6px; color: #8f1f2c; font-weight: 700; }
+
+/* Batalkan latihan */
+.baris-aksi { display: flex; gap: 8px; flex-wrap: wrap; }
+.tombol.merah { border-color: var(--merah); color: var(--merah); }
+.tombol.merah:hover:not(:disabled) { background: var(--merah-muda); border-color: var(--merah); }
+.tombol-teks { margin-top: 14px; background: none; border: 0; font: inherit; font-weight: 700;
+  color: var(--merah); cursor: pointer; padding: 8px 12px; border-radius: 99px; }
+.tombol-teks:hover { background: var(--merah-muda); }

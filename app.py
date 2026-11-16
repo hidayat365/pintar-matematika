@@ -103,6 +103,16 @@ def ambil_latihan(db, id_latihan):
     return data
 
 
+def batalkan(db, id_latihan):
+    """Hapus latihan yang belum dikumpulkan. Latihan yang sudah dinilai tidak bisa dibatalkan."""
+    b = _baris(db, id_latihan)
+    if b["selesai"] is not None:
+        raise Galat(409, "Latihan ini sudah dikumpulkan dan tidak bisa dibatalkan.")
+    with db:
+        db.execute("DELETE FROM latihan WHERE id = ? AND selesai IS NULL", (id_latihan,))
+    return {"id": id_latihan, "dibatalkan": True}
+
+
 def kumpulkan(db, id_latihan, jawaban):
     b = _baris(db, id_latihan)
     if b["selesai"] is not None:
@@ -200,12 +210,14 @@ class Penangan(BaseHTTPRequestHandler):
         if (metode, jalur) == ("POST", "/api/latihan"):
             data = self._badan()
             return mulai_latihan(db, data.get("nama"), data.get("topik"))
-        cocok = re.fullmatch(r"/api/latihan/(\d{1,12})(/jawab)?", jalur)
+        cocok = re.fullmatch(r"/api/latihan/(\d{1,12})(/jawab|/batal)?", jalur)
         if cocok:
             id_latihan = int(cocok.group(1))
             if metode == "GET" and not cocok.group(2):
                 return ambil_latihan(db, id_latihan)
-            if metode == "POST" and cocok.group(2):
+            if metode == "POST" and cocok.group(2) == "/batal":
+                return batalkan(db, id_latihan)
+            if metode == "POST" and cocok.group(2) == "/jawab":
                 return kumpulkan(db, id_latihan, self._badan().get("jawaban"))
         raise Galat(404, "Alamat API tidak ditemukan.")
 
