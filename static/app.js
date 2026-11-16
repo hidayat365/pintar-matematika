@@ -96,6 +96,7 @@ async function bukaBeranda() {
   tampil("beranda");
   $("nama").value = muat(KUNCI_NAMA) || "";
   $("lanjut").hidden = !muat(KUNCI_AKTIF);
+  galatNama(false);
   if (!daftarMapel) {
     daftarMapel = (await api("/api/topik")).mapel;
     $("daftar-mapel").replaceChildren(...daftarMapel.map((m) => {
@@ -142,8 +143,19 @@ function pilihMapel(kode) {
   }));
 }
 
+function galatNama(ada) {
+  $("nama-galat").hidden = !ada;
+  $("nama").classList.toggle("salah", ada);
+  $("nama").setAttribute("aria-invalid", String(ada));
+}
+
 async function mulaiLatihan() {
   if (!topikTerpilih) return;
+  if (!$("nama").value.trim()) {
+    galatNama(true);
+    $("nama").focus();
+    return;
+  }
   if (muat(KUNCI_AKTIF) &&
       !confirm("Masih ada latihan yang belum selesai. Mulai latihan baru dan tinggalkan yang lama?")) return;
   $("mulai").disabled = true;
@@ -319,7 +331,10 @@ async function rute() {
 }
 
 $("mulai").addEventListener("click", mulaiLatihan);
-$("nama").addEventListener("input", () => simpan(KUNCI_NAMA, $("nama").value.trim()));
+$("nama").addEventListener("input", () => {
+  simpan(KUNCI_NAMA, $("nama").value.trim());
+  if ($("nama").value.trim()) galatNama(false);
+});
 $("l-sebelum").addEventListener("click", () => pindah(aktif.posisi - 1));
 $("l-berikut").addEventListener("click", () => pindah(aktif.posisi + 1));
 $("l-selesai").addEventListener("click", kumpulkan);

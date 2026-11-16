@@ -65,7 +65,9 @@ def sekarang():
 # ------------------------------------------------------------- logika aplikasi
 
 def mulai_latihan(db, nama, topik):
-    nama = " ".join(str(nama or "").split())[:40] or "Tanpa Nama"
+    nama = " ".join(str(nama or "").split())[:40]
+    if not nama:
+        raise Galat(400, "Nama harus diisi.")
     if topik not in bank.KODE_TOPIK:
         raise Galat(400, "Topik tidak dikenal.")
     daftar = bank.buat_latihan(topik)

@@ -180,3 +180,8 @@ th:nth-child(4), td:nth-child(4) { white-space: normal; min-width: 130px; }
 .kelompok { grid-column: 1 / -1; margin: 10px 0 0; font-size: .95rem; color: var(--redup);
   text-transform: uppercase; letter-spacing: .05em; }
 .kelompok:first-child { margin-top: 0; }
+
+/* Nama wajib diisi */
+.wajib { color: var(--merah); }
+.isian input.salah { border-color: var(--merah); }
+.isian .galat { display: block; margin-top: 6px; color: #8f1f2c; font-weight: 700; }

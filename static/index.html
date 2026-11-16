@@ -29,8 +29,10 @@
       </div>
 
       <label class="isian">
-        <span>Nama kamu</span>
-        <input id="nama" type="text" maxlength="40" placeholder="Tulis namamu di sini" autocomplete="off">
+        <span>Nama kamu <b class="wajib" aria-hidden="true">*</b></span>
+        <input id="nama" type="text" maxlength="40" placeholder="Tulis namamu di sini" autocomplete="off"
+               required aria-required="true" aria-describedby="nama-galat">
+        <small id="nama-galat" class="galat" role="alert" hidden>Nama harus diisi dulu, ya.</small>
       </label>
 
       <h2>Pilih mata pelajaran</h2>

@@ -138,7 +138,7 @@ Soal yang tidak dijawab dihitung salah. Lama pengerjaan dihitung server
 ├──────────────────────────────────────────────────────┤
 │  Halo! Siap latihan matematika kelas 4?              │
 │                                                      │
-│  Nama kamu: [______________]                         │
+│  Nama kamu*: [______________]   (wajib diisi)        │
 │                                                      │
 │  Pelajaran: (Matematika) (Bahasa Inggris)            │
 │                                                      │

@@ -237,10 +237,14 @@ class UjiApi(unittest.TestCase):
         self.assertEqual((baris["mapel"], baris["nama_topik"]), ("Bahasa Inggris", "Unit 10 · He Always Gets Up at 5 O'clock"))
 
     def test_masukan_tidak_sah(self):
-        self.assertEqual(self.minta("/api/latihan", {"topik": "kalkulus"})[0], 400)
+        self.assertEqual(self.minta("/api/latihan", {"nama": "Budi", "topik": "kalkulus"})[0], 400)
         self.assertEqual(self.minta("/api/latihan/99999")[0], 404)
-        _, latihan = self.minta("/api/latihan", {"nama": "", "topik": "campuran"})
-        self.assertEqual(latihan["nama"], "Tanpa Nama")
+        for kosong in ("", "   ", None):                      # nama wajib diisi
+            status, galat = self.minta("/api/latihan", {"nama": kosong, "topik": "campuran"})
+            self.assertEqual((status, galat["galat"]), (400, "Nama harus diisi."))
+        self.assertEqual(self.minta("/api/latihan", {"topik": "campuran"})[0], 400)
+        _, latihan = self.minta("/api/latihan", {"nama": "  Budi   Santoso ", "topik": "campuran"})
+        self.assertEqual(latihan["nama"], "Budi Santoso")
         self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [0]})[0], 400)
         self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [9] * 20})[0], 400)
         # latihan yang belum selesai tidak masuk riwayat
