@@ -60,19 +60,41 @@ Mata pelajaran kedua memakai alur, penilaian, dan pencatatan yang sama. Siswa me
 pelajaran di Beranda, lalu memilih topiknya. Soal ditulis dalam bahasa Inggris; pembahasan
 ditulis dalam bahasa Indonesia agar mudah dipahami.
 
-| Kode | Topik | Contoh jenis soal |
+Pembagian topik mengikuti buku siswa Kemendikbudristek **My Next Words Grade 4** (2021):
+satu topik per unit, dikelompokkan per semester di Beranda.
+
+| Kode | Unit buku | Isi soal |
 |---|---|---|
-| `en-vocabulary` | Vocabulary | arti kata (hewan, buah, anggota tubuh, keluarga, benda di kelas, makanan, warna), kelompok kata, lawan kata |
-| `en-numbers` | Numbers, Days & Time | bilangan dalam kata, bilangan urutan, hari, bulan, membaca jam |
-| `en-tobe` | To Be & Pronouns | am/is/are, kata ganti (he/she/it/they/we), kata milik, this/that/these/those |
-| `en-present` | Simple Present | kata kerja + s/es, don't/doesn't, do/does, jawaban singkat, kata keterangan frekuensi |
-| `en-continuous` | Present Continuous | am/is/are + kata kerja-ing, ejaan -ing, bentuk negatif |
-| `en-there` | There Is/Are & Prepositions | there is/are, kata depan tempat (sebagian bergambar), nama ruangan |
-| `en-nouns` | Nouns & Articles | bentuk jamak beraturan dan tidak beraturan, a/an |
-| `en-questions` | Questions & Answers | kata tanya, have/has, can/can't, percakapan sederhana |
-| `en-places` | Places, Jobs & Transportation | tempat umum, pekerjaan, kendaraan |
-| `en-reading` | Reading | empat bacaan pendek per latihan; soal dengan bacaan yang sama ditampilkan berurutan |
-| `en-campuran` | Mixed Practice | 20 soal diambil merata dari semua topik di atas |
+| `en-unit-1` | Unit 1 · What Are You Doing? | am/is/are + kata kerja-ing, ejaan -ing, kegiatan di sekolah |
+| `en-unit-2` | Unit 2 · There Are 67 English Books | bilangan 1–100 dalam kata, plus/minus, how many |
+| `en-unit-3` | Unit 3 · My Living Room is Beside Kitchen | nama ruangan, beside/between (denah bergambar), clean/dirty/tidy/empty |
+| `en-unit-4` | Unit 4 · Cici Cooks in The Kitchen | kalimat positif/negatif/tanya (do/does), respon Yes/No, kegiatan di tiap ruangan |
+| `en-unit-5` | Unit 5 · Where Is My Pencil? | benda di ruang tamu dan kamar tidur, there is/are, how many, a/an, jamak, kata depan tempat |
+| `en-unit-6` | Unit 6 · The Stove is in The Kitchen | benda di kamar mandi dan dapur, kegunaan benda, do not/does not, bacaan tentang ruangan |
+| `en-unit-7` | Unit 7 · I Can Make Fried Egg in The Kitchen | can/can't, kata kerja memasak |
+| `en-unit-8` | Unit 8 · Be On Time! | membaca jam (gambar jam): o'clock, half past, quarter past/to |
+| `en-unit-9` | Unit 9 · I Go to School after Having Breakfast | kegiatan sehari-hari, before/after, morning/afternoon/evening/night |
+| `en-unit-10` | Unit 10 · He Always Gets Up at 5 O'clock | always/usually/sometimes/never, bacaan kegiatan harian |
+| `en-unit-11` | Unit 11 · How Do You Go to School? | nama kendaraan, by …/on foot |
+| `en-unit-12` | Unit 12 · He Goes to School by Bike | kalimat go/goes to … at … by … |
+| `en-semester-1` | Semester 1 Review | gabungan Unit 1–7 |
+| `en-semester-2` | Semester 2 Review | gabungan Unit 8–12 |
+| `en-ts3` | Latihan Tes Sumatif 3 | paket sesuai kisi-kisi sekolah (lihat di bawah) |
+
+**Kisi-kisi Tes Sumatif 3.** Kisi-kisi sekolah memakai penomoran *Lesson 5* dan *Lesson 6*
+yang tidak sama dengan nomor unit buku. Isinya dipetakan sebagai berikut, dan kosakatanya
+(termasuk terjemahan versi kisi-kisi) dimasukkan ke unit terkait:
+
+| Materi kisi-kisi | Unit |
+|---|---|
+| Benda di bathroom, living room, kitchen, bedroom | Unit 5 dan Unit 6 |
+| There is / There are, a/an, benda jamak | Unit 5 |
+| How many … are there? | Unit 5 (dan Unit 2) |
+| Alat dapur (kitchenware) | Unit 6 |
+| Kata kerja kegiatan memasak | Unit 7 |
+| Kalimat positif, negatif, tanya; respon Yes/No | Unit 4 |
+
+Paket `en-ts3` mengambil soal hanya dari materi di tabel ini.
 
 Kode topik Bahasa Inggris diawali `en-` sehingga tidak bertabrakan dengan topik Matematika;
 mata pelajaran sebuah latihan diturunkan dari kode topiknya, jadi skema database tidak berubah.

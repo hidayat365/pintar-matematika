@@ -177,3 +177,6 @@ td a { color: var(--utama); font-weight: 700; text-decoration: none; }
   padding: 12px 14px; margin: 0 0 16px; line-height: 1.7; }
 .bacaan.kecil { font-size: .92rem; padding: 8px 12px; margin-bottom: 8px; }
 th:nth-child(4), td:nth-child(4) { white-space: normal; min-width: 130px; }
+.kelompok { grid-column: 1 / -1; margin: 10px 0 0; font-size: .95rem; color: var(--redup);
+  text-transform: uppercase; letter-spacing: .05em; }
+.kelompok:first-child { margin-top: 0; }

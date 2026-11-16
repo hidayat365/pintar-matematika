@@ -119,7 +119,8 @@ function pilihMapel(kode) {
   $("mulai").disabled = true;
   for (const b of $("daftar-mapel").children) b.setAttribute("aria-checked", String(b.dataset.kode === kode));
   const mapel = daftarMapel.find((m) => m.kode === kode);
-  $("daftar-topik").replaceChildren(...mapel.topik.map((t) => {
+  let kelompok = null;
+  $("daftar-topik").replaceChildren(...mapel.topik.flatMap((t) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "topik";
@@ -129,10 +130,15 @@ function pilihMapel(kode) {
       `<b>${aman(t.nama)}</b><small>${aman(t.ket)}</small>`;
     b.addEventListener("click", () => {
       topikTerpilih = t.kode;
-      for (const x of $("daftar-topik").children) x.setAttribute("aria-checked", String(x === b));
+      for (const x of $("daftar-topik").querySelectorAll(".topik")) x.setAttribute("aria-checked", String(x === b));
       $("mulai").disabled = false;
     });
-    return b;
+    if (!t.kelompok || t.kelompok === kelompok) return [b];
+    kelompok = t.kelompok;       // judul kecil pemisah, mis. "Semester 1"
+    const judul = document.createElement("h3");
+    judul.className = "kelompok";
+    judul.textContent = kelompok;
+    return [judul, b];
   }));
 }
 
