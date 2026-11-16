@@ -164,3 +164,16 @@ td a { color: var(--utama); font-weight: 700; text-decoration: none; }
   border: 1px solid var(--garis); border-radius: 12px; }
 .gambar.kecil { text-align: left; margin: 6px 0; }
 .gambar.kecil svg { max-width: 170px; }
+
+/* Pilihan mata pelajaran */
+.mapel { display: flex; gap: 10px; flex-wrap: wrap; }
+.pilih-mapel { font: inherit; font-weight: 800; font-size: 1.05rem; color: var(--teks); background: var(--kartu);
+  border: 2px solid var(--garis); border-radius: 99px; padding: 10px 22px; cursor: pointer; }
+.pilih-mapel:hover { border-color: var(--utama); }
+.pilih-mapel[aria-checked="true"] { background: var(--utama); border-color: var(--utama); color: #fff; }
+
+/* Teks bacaan */
+.bacaan { background: #fff9e6; border-left: 5px solid var(--kuning); border-radius: 10px;
+  padding: 12px 14px; margin: 0 0 16px; line-height: 1.7; }
+.bacaan.kecil { font-size: .92rem; padding: 8px 12px; margin-bottom: 8px; }
+th:nth-child(4), td:nth-child(4) { white-space: normal; min-width: 130px; }

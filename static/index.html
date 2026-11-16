@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pintar Matematika — Latihan Soal SD Kelas 4</title>
+  <title>Pintar Matematika — Latihan Soal SD Kelas 4 (Matematika & Bahasa Inggris)</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <!-- Beranda -->
     <section id="layar-beranda" hidden>
-      <h1>Halo! Siap latihan matematika? 👋</h1>
+      <h1>Halo! Siap latihan hari ini? 👋</h1>
       <p class="redup">Setiap latihan berisi <b>20 soal baru</b>. Nilaimu langsung dihitung dan dicatat.</p>
 
       <div id="lanjut" class="kartu lanjut" hidden>
@@ -32,6 +32,9 @@
         <span>Nama kamu</span>
         <input id="nama" type="text" maxlength="40" placeholder="Tulis namamu di sini" autocomplete="off">
       </label>
+
+      <h2>Pilih mata pelajaran</h2>
+      <div id="daftar-mapel" class="mapel" role="radiogroup" aria-label="Mata pelajaran"></div>
 
       <h2>Pilih topik latihan</h2>
       <div id="daftar-topik" class="kisi-topik" role="radiogroup" aria-label="Topik latihan"></div>
@@ -51,6 +54,7 @@
       <div class="batang" aria-hidden="true"><div id="l-batang"></div></div>
 
       <div class="kartu soal">
+        <p id="l-bacaan" class="bacaan" hidden></p>
         <p id="l-teks" class="teks-soal"></p>
         <div id="l-gambar" class="gambar" hidden></div>
         <div id="l-pilihan" class="pilihan" role="radiogroup" aria-label="Pilihan jawaban"></div>
@@ -95,7 +99,7 @@
       <p id="r-kosong" class="kartu tengah" hidden>Belum ada latihan yang selesai. <a href="#/">Mulai latihan pertamamu!</a></p>
       <div id="r-bungkus" class="kartu gulir" hidden>
         <table>
-          <thead><tr><th>Tanggal</th><th>Nama</th><th>Topik</th><th>Benar</th><th>Nilai</th><th>Waktu</th><th></th></tr></thead>
+          <thead><tr><th>Tanggal</th><th>Nama</th><th>Pelajaran</th><th>Topik</th><th>Benar</th><th>Nilai</th><th>Waktu</th><th></th></tr></thead>
           <tbody id="r-isi"></tbody>
         </table>
       </div>

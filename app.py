@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pintar Matematika — server latihan soal matematika SD kelas 4.
+"""Pintar Matematika — server latihan soal Matematika dan Bahasa Inggris SD kelas 4.
 
 Jalankan:  python3 app.py   lalu buka http://localhost:8000
 Hanya memakai pustaka standar Python. Hasil latihan disimpan di SQLite.
@@ -14,7 +14,7 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import soal as bank
+import bank
 
 AKAR = Path(__file__).resolve().parent
 DB_BAWAAN = Path(os.environ.get("PINTAR_DB", AKAR / "data" / "latihan.db"))
@@ -88,10 +88,11 @@ def ambil_latihan(db, id_latihan):
     b = _baris(db, id_latihan)
     daftar = json.loads(b["soal"])
     data = {"id": b["id"], "nama": b["nama"], "topik": b["topik"],
-            "nama_topik": bank.nama_topik(b["topik"]), "dibuat": b["dibuat"],
+            "nama_topik": bank.nama_topik(b["topik"]),
+            "mapel": bank.nama_mapel(b["topik"]), "dibuat": b["dibuat"],
             "selesai": b["selesai"]}
     if b["selesai"] is None:
-        data["soal"] = [{k: s[k] for k in ("teks", "gambar", "pilihan") if k in s} for s in daftar]
+        data["soal"] = [{k: s[k] for k in ("teks", "bacaan", "gambar", "pilihan") if k in s} for s in daftar]
         return data
     jawaban = json.loads(b["jawaban"])
     data.update(benar=b["benar"], nilai=b["nilai"], durasi=b["durasi"],
@@ -127,7 +128,8 @@ def riwayat(db):
     baris = db.execute(
         "SELECT id, nama, topik, selesai, benar, nilai, durasi FROM latihan "
         "WHERE selesai IS NOT NULL ORDER BY selesai DESC, id DESC").fetchall()
-    daftar = [dict(b, nama_topik=bank.nama_topik(b["topik"]), jumlah=bank.JUMLAH_SOAL)
+    daftar = [dict(b, nama_topik=bank.nama_topik(b["topik"]), mapel=bank.nama_mapel(b["topik"]),
+                   jumlah=bank.JUMLAH_SOAL)
               for b in baris]
     nilai = [d["nilai"] for d in daftar]
     ringkasan = {"jumlah": len(nilai),
@@ -190,7 +192,7 @@ class Penangan(BaseHTTPRequestHandler):
 
     def _api(self, db, metode, jalur):
         if (metode, jalur) == ("GET", "/api/topik"):
-            return {"topik": bank.TOPIK, "jumlah_soal": bank.JUMLAH_SOAL}
+            return {"mapel": bank.MAPEL, "jumlah_soal": bank.JUMLAH_SOAL}
         if (metode, jalur) == ("GET", "/api/riwayat"):
             return riwayat(db)
         if (metode, jalur) == ("POST", "/api/latihan"):

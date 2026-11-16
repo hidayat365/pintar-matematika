@@ -54,6 +54,29 @@ Mengacu pada materi matematika kelas 4 SD:
 - Setiap soal punya **pembahasan singkat** yang ditampilkan setelah dinilai.
 - Bilangan ditulis dengan gaya Indonesia: `12.500`, desimal `0,25`.
 
+### Mata pelajaran Bahasa Inggris
+
+Mata pelajaran kedua memakai alur, penilaian, dan pencatatan yang sama. Siswa memilih mata
+pelajaran di Beranda, lalu memilih topiknya. Soal ditulis dalam bahasa Inggris; pembahasan
+ditulis dalam bahasa Indonesia agar mudah dipahami.
+
+| Kode | Topik | Contoh jenis soal |
+|---|---|---|
+| `en-vocabulary` | Vocabulary | arti kata (hewan, buah, anggota tubuh, keluarga, benda di kelas, makanan, warna), kelompok kata, lawan kata |
+| `en-numbers` | Numbers, Days & Time | bilangan dalam kata, bilangan urutan, hari, bulan, membaca jam |
+| `en-tobe` | To Be & Pronouns | am/is/are, kata ganti (he/she/it/they/we), kata milik, this/that/these/those |
+| `en-present` | Simple Present | kata kerja + s/es, don't/doesn't, do/does, jawaban singkat, kata keterangan frekuensi |
+| `en-continuous` | Present Continuous | am/is/are + kata kerja-ing, ejaan -ing, bentuk negatif |
+| `en-there` | There Is/Are & Prepositions | there is/are, kata depan tempat (sebagian bergambar), nama ruangan |
+| `en-nouns` | Nouns & Articles | bentuk jamak beraturan dan tidak beraturan, a/an |
+| `en-questions` | Questions & Answers | kata tanya, have/has, can/can't, percakapan sederhana |
+| `en-places` | Places, Jobs & Transportation | tempat umum, pekerjaan, kendaraan |
+| `en-reading` | Reading | empat bacaan pendek per latihan; soal dengan bacaan yang sama ditampilkan berurutan |
+| `en-campuran` | Mixed Practice | 20 soal diambil merata dari semua topik di atas |
+
+Kode topik Bahasa Inggris diawali `en-` sehingga tidak bertabrakan dengan topik Matematika;
+mata pelajaran sebuah latihan diturunkan dari kode topiknya, jadi skema database tidak berubah.
+
 ## 4. Penilaian
 
 ```
@@ -94,6 +117,8 @@ Soal yang tidak dijawab dihitung salah. Lama pengerjaan dihitung server
 │  Halo! Siap latihan matematika kelas 4?              │
 │                                                      │
 │  Nama kamu: [______________]                         │
+│                                                      │
+│  Pelajaran: (Matematika) (Bahasa Inggris)            │
 │                                                      │
 │  Pilih topik:                                        │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐              │
@@ -167,7 +192,7 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
         │  HTTP + JSON
         ▼
  app.py  ── server HTTP + API + penilaian
-   ├── soal.py   ── pembangkit soal per topik
+   ├── bank.py   ── daftar mata pelajaran → soal.py (Matematika), soal_inggris.py (Bahasa Inggris)
    └── SQLite    ── data/latihan.db
 ```
 
@@ -175,7 +200,9 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
 
 ```
 app.py              server & API
-soal.py             pembangkit soal
+soal.py             pembangkit soal Matematika
+soal_inggris.py     pembangkit soal Bahasa Inggris
+bank.py             daftar mata pelajaran; penghubung app.py ke pembangkit soal
 static/index.html   kerangka halaman
 static/style.css    tampilan
 static/app.js       logika layar
@@ -187,7 +214,7 @@ data/latihan.db     dibuat otomatis saat pertama dijalankan
 
 | Metode | Alamat | Fungsi |
 |---|---|---|
-| GET | `/api/topik` | daftar topik |
+| GET | `/api/topik` | daftar mata pelajaran beserta topiknya |
 | POST | `/api/latihan` | mulai latihan baru `{nama, topik}` → 20 soal **tanpa kunci** |
 | GET | `/api/latihan/{id}` | latihan berjalan (soal saja) atau latihan selesai (lengkap dengan kunci & pembahasan) |
 | POST | `/api/latihan/{id}/jawab` | kumpulkan `{jawaban: [0-3 atau null] × 20}` → dinilai & disimpan |
