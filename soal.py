@@ -2,7 +2,8 @@
 
 Setiap pembangkit menerima objek ``random.Random`` dan mengembalikan dict:
     {"teks": str, "pilihan": [str × 4], "benar": indeks, "pembahasan": str}
-ditambah "gambar" (SVG) bila soalnya bergambar.
+ditambah "gambar" (SVG) bila soalnya bergambar. Soal Bahasa Inggris (soal_inggris.py)
+juga dapat membawa "bacaan".
 """
 
 import random
@@ -1271,13 +1272,10 @@ def nama_topik(kode):
     return next((t["nama"] for t in TOPIK if t["kode"] == kode), kode)
 
 
-def buat_latihan(topik, jumlah=JUMLAH_SOAL, rng=None):
-    """Buat ``jumlah`` soal berbeda untuk satu topik (atau 'campuran')."""
-    if topik not in KODE_TOPIK:
-        raise ValueError(f"topik tidak dikenal: {topik}")
-    r = rng or random.Random()
-    if topik == "campuran":
-        kode = list(PEMBANGKIT)
+def rakit(pembangkit, topik, kode_campuran, jumlah, r):
+    """Susun ``jumlah`` soal berbeda dari kumpulan ``pembangkit`` untuk satu topik."""
+    if topik == kode_campuran:
+        kode = list(pembangkit)
         r.shuffle(kode)
         urutan = [kode[i % len(kode)] for i in range(jumlah)]
         r.shuffle(urutan)
@@ -1286,13 +1284,31 @@ def buat_latihan(topik, jumlah=JUMLAH_SOAL, rng=None):
 
     hasil, terpakai = [], set()
     for kode in urutan:
-        for _ in range(200):
-            soal = r.choice(PEMBANGKIT[kode])(r)
-            kunci = soal.pop("kunci", soal["teks"])
+        for _ in range(300):
+            soal = r.choice(pembangkit[kode])(r)
+            kunci = soal.pop("kunci", (soal["teks"], soal.get("bacaan")))
             if kunci not in terpakai and soal.get("gambar") not in terpakai:
                 break
         else:
             raise RuntimeError(f"gagal membuat soal unik untuk topik {kode}")
         terpakai.update({kunci, soal.get("gambar", kunci)})
         hasil.append(soal)
+
+    # Soal dengan bacaan yang sama dikumpulkan berurutan agar bacaan cukup dibaca sekali.
+    posisi = {}
+    for soal in hasil:
+        if "bacaan" in soal:
+            posisi.setdefault(soal["bacaan"], len(posisi))
+    if posisi:
+        awal = next(i for i, soal in enumerate(hasil) if "bacaan" in soal)
+        berbacaan = sorted((s for s in hasil if "bacaan" in s), key=lambda s: posisi[s["bacaan"]])
+        lain = [s for s in hasil if "bacaan" not in s]
+        hasil = lain[:awal] + berbacaan + lain[awal:]
     return hasil
+
+
+def buat_latihan(topik, jumlah=JUMLAH_SOAL, rng=None):
+    """Buat ``jumlah`` soal matematika berbeda untuk satu topik (atau 'campuran')."""
+    if topik not in KODE_TOPIK:
+        raise ValueError(f"topik tidak dikenal: {topik}")
+    return rakit(PEMBANGKIT, topik, "campuran", jumlah, rng or random.Random())

@@ -54,6 +54,51 @@ Mengacu pada materi matematika kelas 4 SD:
 - Setiap soal punya **pembahasan singkat** yang ditampilkan setelah dinilai.
 - Bilangan ditulis dengan gaya Indonesia: `12.500`, desimal `0,25`.
 
+### Mata pelajaran Bahasa Inggris
+
+Mata pelajaran kedua memakai alur, penilaian, dan pencatatan yang sama. Siswa memilih mata
+pelajaran di Beranda, lalu memilih topiknya. Soal ditulis dalam bahasa Inggris; pembahasan
+ditulis dalam bahasa Indonesia agar mudah dipahami.
+
+Pembagian topik mengikuti buku siswa Kemendikbudristek **My Next Words Grade 4** (2021):
+satu topik per unit, dikelompokkan per semester di Beranda.
+
+| Kode | Unit buku | Isi soal |
+|---|---|---|
+| `en-unit-1` | Unit 1 · What Are You Doing? | am/is/are + kata kerja-ing, ejaan -ing, kegiatan di sekolah |
+| `en-unit-2` | Unit 2 · There Are 67 English Books | bilangan 1–100 dalam kata, plus/minus, how many |
+| `en-unit-3` | Unit 3 · My Living Room is Beside Kitchen | nama ruangan, beside/between (denah bergambar), clean/dirty/tidy/empty |
+| `en-unit-4` | Unit 4 · Cici Cooks in The Kitchen | kalimat positif/negatif/tanya (do/does), respon Yes/No, kegiatan di tiap ruangan |
+| `en-unit-5` | Unit 5 · Where Is My Pencil? | benda di ruang tamu dan kamar tidur, there is/are, how many, a/an, jamak, kata depan tempat |
+| `en-unit-6` | Unit 6 · The Stove is in The Kitchen | benda di kamar mandi dan dapur, kegunaan benda, do not/does not, bacaan tentang ruangan |
+| `en-unit-7` | Unit 7 · I Can Make Fried Egg in The Kitchen | can/can't, kata kerja memasak |
+| `en-unit-8` | Unit 8 · Be On Time! | membaca jam (gambar jam): o'clock, half past, quarter past/to |
+| `en-unit-9` | Unit 9 · I Go to School after Having Breakfast | kegiatan sehari-hari, before/after, morning/afternoon/evening/night |
+| `en-unit-10` | Unit 10 · He Always Gets Up at 5 O'clock | always/usually/sometimes/never, bacaan kegiatan harian |
+| `en-unit-11` | Unit 11 · How Do You Go to School? | nama kendaraan, by …/on foot |
+| `en-unit-12` | Unit 12 · He Goes to School by Bike | kalimat go/goes to … at … by … |
+| `en-semester-1` | Semester 1 Review | gabungan Unit 1–7 |
+| `en-semester-2` | Semester 2 Review | gabungan Unit 8–12 |
+| `en-ts3` | Latihan Tes Sumatif 3 | paket sesuai kisi-kisi sekolah (lihat di bawah) |
+
+**Kisi-kisi Tes Sumatif 3.** Kisi-kisi sekolah memakai penomoran *Lesson 5* dan *Lesson 6*
+yang tidak sama dengan nomor unit buku. Isinya dipetakan sebagai berikut, dan kosakatanya
+(termasuk terjemahan versi kisi-kisi) dimasukkan ke unit terkait:
+
+| Materi kisi-kisi | Unit |
+|---|---|
+| Benda di bathroom, living room, kitchen, bedroom | Unit 5 dan Unit 6 |
+| There is / There are, a/an, benda jamak | Unit 5 |
+| How many … are there? | Unit 5 (dan Unit 2) |
+| Alat dapur (kitchenware) | Unit 6 |
+| Kata kerja kegiatan memasak | Unit 7 |
+| Kalimat positif, negatif, tanya; respon Yes/No | Unit 4 |
+
+Paket `en-ts3` mengambil soal hanya dari materi di tabel ini.
+
+Kode topik Bahasa Inggris diawali `en-` sehingga tidak bertabrakan dengan topik Matematika;
+mata pelajaran sebuah latihan diturunkan dari kode topiknya, jadi skema database tidak berubah.
+
 ## 4. Penilaian
 
 ```
@@ -93,7 +138,9 @@ Soal yang tidak dijawab dihitung salah. Lama pengerjaan dihitung server
 ├──────────────────────────────────────────────────────┤
 │  Halo! Siap latihan matematika kelas 4?              │
 │                                                      │
-│  Nama kamu: [______________]                         │
+│  Nama kamu*: [______________]   (wajib diisi)        │
+│                                                      │
+│  Pelajaran: (Matematika) (Bahasa Inggris)            │
 │                                                      │
 │  Pilih topik:                                        │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐              │
@@ -167,7 +214,7 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
         │  HTTP + JSON
         ▼
  app.py  ── server HTTP + API + penilaian
-   ├── soal.py   ── pembangkit soal per topik
+   ├── bank.py   ── daftar mata pelajaran → soal.py (Matematika), soal_inggris.py (Bahasa Inggris)
    └── SQLite    ── data/latihan.db
 ```
 
@@ -175,7 +222,9 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
 
 ```
 app.py              server & API
-soal.py             pembangkit soal
+soal.py             pembangkit soal Matematika
+soal_inggris.py     pembangkit soal Bahasa Inggris
+bank.py             daftar mata pelajaran; penghubung app.py ke pembangkit soal
 static/index.html   kerangka halaman
 static/style.css    tampilan
 static/app.js       logika layar
@@ -187,7 +236,7 @@ data/latihan.db     dibuat otomatis saat pertama dijalankan
 
 | Metode | Alamat | Fungsi |
 |---|---|---|
-| GET | `/api/topik` | daftar topik |
+| GET | `/api/topik` | daftar mata pelajaran beserta topiknya |
 | POST | `/api/latihan` | mulai latihan baru `{nama, topik}` → 20 soal **tanpa kunci** |
 | GET | `/api/latihan/{id}` | latihan berjalan (soal saja) atau latihan selesai (lengkap dengan kunci & pembahasan) |
 | POST | `/api/latihan/{id}/jawab` | kumpulkan `{jawaban: [0-3 atau null] × 20}` → dinilai & disimpan |

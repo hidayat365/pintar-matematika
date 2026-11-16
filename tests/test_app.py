@@ -11,7 +11,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import app  # noqa: E402
+import bank  # noqa: E402
 import soal  # noqa: E402
+import soal_inggris  # noqa: E402
 
 
 class UjiSoal(unittest.TestCase):
@@ -73,6 +75,85 @@ class UjiSoal(unittest.TestCase):
         self.assertEqual(len(daftar), 20)
 
 
+class UjiSoalInggris(unittest.TestCase):
+    def test_topik_mengikuti_unit_buku(self):
+        kode = soal_inggris.KODE_TOPIK
+        self.assertEqual(kode[:12], [f"en-unit-{i}" for i in range(1, 13)])
+        self.assertEqual(kode[12:], ["en-semester-1", "en-semester-2", "en-ts3"])
+        for t in soal_inggris.TOPIK[:7]:
+            self.assertEqual(t["kelompok"], "Semester 1")
+        for t in soal_inggris.TOPIK[7:12]:
+            self.assertEqual(t["kelompok"], "Semester 2")
+
+    def test_setiap_topik_menghasilkan_20_soal_unik_dan_sah(self):
+        from xml.dom.minidom import parseString
+        for kode in soal_inggris.KODE_TOPIK:
+            for benih in range(150):
+                daftar = soal_inggris.buat_latihan(kode, rng=random.Random(benih))
+                self.assertEqual(len(daftar), 20, kode)
+                kunci = {(s["teks"], s.get("bacaan"), s.get("gambar"), tuple(sorted(map(str, s["pilihan"]))))
+                         for s in daftar}
+                self.assertEqual(len(kunci), 20, kode)
+                for s in daftar:
+                    self.assertEqual(len(set(s["pilihan"])), 4, s)
+                    self.assertIn(s["benar"], range(4), s)
+                    self.assertTrue(s["pembahasan"], s)
+                    self.assertNotIn("kunci", s)
+                    if "gambar" in s and benih < 10:
+                        parseString(s["gambar"])
+
+    def test_setiap_pembangkit_berjalan(self):
+        r = random.Random(7)
+        for daftar in soal_inggris.PEMBANGKIT.values():
+            for buat in set(daftar):
+                for _ in range(300):
+                    s = buat(r)
+                    self.assertEqual(len(set(map(str, s["pilihan"]))), 4, (buat.__name__, s))
+
+    def test_kata_bilangan_dan_jam(self):
+        contoh = {7: "seven", 13: "thirteen", 40: "forty", 58: "fifty-eight", 100: "one hundred"}
+        for n, kata in contoh.items():
+            self.assertEqual(soal_inggris.kata_bilangan(n), kata)
+        jam = {(7, 0): "seven o'clock", (8, 30): "half past eight", (3, 15): "quarter past three",
+               (6, 45): "quarter to seven", (12, 45): "quarter to one"}
+        for (j, m), kata in jam.items():
+            self.assertEqual(soal_inggris._ucapan_jam(j, m), kata)
+
+    def test_kunci_tata_bahasa(self):
+        r = random.Random(5)
+        jamak = ("I", "You", "We", "They", "Aisyah and Cici", "Joshua and Made", "The students")
+        for _ in range(300):
+            s = soal_inggris.u4_negatif(r)
+            subjek = s["teks"].split(" ___")[0]
+            self.assertEqual(s["pilihan"][s["benar"]], "don't" if subjek in jamak else "doesn't", s["teks"])
+            s = soal_inggris.u5_there(r)
+            tunggal = s["teks"].split("___ ")[1].split()[0] in ("a", "an")
+            self.assertEqual(s["pilihan"][s["benar"]], "is" if tunggal else "are", s["teks"])
+
+    def test_kosakata_kisi_kisi_tercakup(self):
+        semua = {**soal_inggris.BENDA_5, **soal_inggris.BENDA_6}
+        for kata in ("mirror", "soap", "toothbrush", "sink", "sofa", "stool", "carpet", "side table", "pan",
+                     "frying pan", "stove", "cooking oil", "spice container", "cabinet", "trash bin", "bed",
+                     "pillow", "bolster", "blanket", "desk", "bookshelf", "desk lamp", "wardrobe", "turner",
+                     "bowl", "chopping board", "grater", "kettle", "spoon", "knife", "oven", "peeler",
+                     "plate", "pot", "painting", "lamp", "chair", "table", "shampoo", "toilet paper"):
+            self.assertTrue(kata in semua or kata == "sofa", kata)
+        for kata in ("serve", "cook", "grate", "cut", "boil", "simmer", "turn", "check", "taste", "peel",
+                     "add", "mix", "fry", "clean"):
+            self.assertIn(kata, soal_inggris.MEMASAK)
+
+    def test_bacaan_dikelompokkan(self):
+        for benih in range(40):
+            daftar = soal_inggris.buat_latihan("en-unit-10", rng=random.Random(benih))
+            urutan = [s["bacaan"] for s in daftar if "bacaan" in s]
+            self.assertEqual(len(set(urutan)), len([1 for i, b in enumerate(urutan) if i == 0 or b != urutan[i - 1]]))
+
+    def test_topik_kedua_mapel_tidak_bertabrakan(self):
+        self.assertEqual(len(bank.KODE_TOPIK), len(set(bank.KODE_TOPIK)))
+        self.assertEqual(bank.nama_mapel("en-unit-3"), "Bahasa Inggris")
+        self.assertEqual(bank.nama_mapel("pecahan"), "Matematika")
+
+
 class UjiApi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -113,7 +194,8 @@ class UjiApi(unittest.TestCase):
     def test_alur_lengkap(self):
         status, topik = self.minta("/api/topik")
         self.assertEqual(status, 200)
-        self.assertEqual(len(topik["topik"]), 11)
+        self.assertEqual([m["kode"] for m in topik["mapel"]], ["matematika", "inggris"])
+        self.assertEqual([len(m["topik"]) for m in topik["mapel"]], [11, 15])
 
         status, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "pecahan"})
         self.assertEqual(status, 200)
@@ -141,11 +223,28 @@ class UjiApi(unittest.TestCase):
         self.assertIn(latihan["id"], [x["id"] for x in catatan["latihan"]])
         self.assertGreaterEqual(catatan["ringkasan"]["jumlah"], 1)
 
+    def test_latihan_bahasa_inggris(self):
+        status, latihan = self.minta("/api/latihan", {"nama": "Rina", "topik": "en-unit-10"})
+        self.assertEqual(status, 200)
+        self.assertEqual(latihan["mapel"], "Bahasa Inggris")
+        self.assertTrue(any("bacaan" in s for s in latihan["soal"]))
+        self.assertNotIn("benar", latihan["soal"][0])
+        kunci = self.kunci(latihan["id"])
+        status, hasil = self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": kunci})
+        self.assertEqual((status, hasil["nilai"]), (200, 100))
+        _, catatan = self.minta("/api/riwayat")
+        baris = next(x for x in catatan["latihan"] if x["id"] == latihan["id"])
+        self.assertEqual((baris["mapel"], baris["nama_topik"]), ("Bahasa Inggris", "Unit 10 · He Always Gets Up at 5 O'clock"))
+
     def test_masukan_tidak_sah(self):
-        self.assertEqual(self.minta("/api/latihan", {"topik": "kalkulus"})[0], 400)
+        self.assertEqual(self.minta("/api/latihan", {"nama": "Budi", "topik": "kalkulus"})[0], 400)
         self.assertEqual(self.minta("/api/latihan/99999")[0], 404)
-        _, latihan = self.minta("/api/latihan", {"nama": "", "topik": "campuran"})
-        self.assertEqual(latihan["nama"], "Tanpa Nama")
+        for kosong in ("", "   ", None):                      # nama wajib diisi
+            status, galat = self.minta("/api/latihan", {"nama": kosong, "topik": "campuran"})
+            self.assertEqual((status, galat["galat"]), (400, "Nama harus diisi."))
+        self.assertEqual(self.minta("/api/latihan", {"topik": "campuran"})[0], 400)
+        _, latihan = self.minta("/api/latihan", {"nama": "  Budi   Santoso ", "topik": "campuran"})
+        self.assertEqual(latihan["nama"], "Budi Santoso")
         self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [0]})[0], 400)
         self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [9] * 20})[0], 400)
         # latihan yang belum selesai tidak masuk riwayat

@@ -4,7 +4,9 @@ const $ = (id) => document.getElementById(id);
 const HURUF = ["A", "B", "C", "D"];
 const KUNCI_AKTIF = "pintar.aktif";   // latihan yang sedang dikerjakan
 const KUNCI_NAMA = "pintar.nama";
+const KUNCI_MAPEL = "pintar.mapel";
 
+let daftarMapel = null;
 let topikTerpilih = null;
 let aktif = null;        // {id, nama_topik, dibuat, soal, jawaban, posisi}
 let detak = null;
@@ -94,9 +96,32 @@ async function bukaBeranda() {
   tampil("beranda");
   $("nama").value = muat(KUNCI_NAMA) || "";
   $("lanjut").hidden = !muat(KUNCI_AKTIF);
-  if ($("daftar-topik").childElementCount) return;
-  const { topik } = await api("/api/topik");
-  for (const t of topik) {
+  galatNama(false);
+  if (!daftarMapel) {
+    daftarMapel = (await api("/api/topik")).mapel;
+    $("daftar-mapel").replaceChildren(...daftarMapel.map((m) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pilih-mapel";
+      b.dataset.kode = m.kode;
+      b.setAttribute("role", "radio");
+      b.innerHTML = `<span aria-hidden="true">${aman(m.ikon)}</span> ${aman(m.nama)}`;
+      b.addEventListener("click", () => pilihMapel(m.kode));
+      return b;
+    }));
+    const tersimpan = muat(KUNCI_MAPEL);
+    pilihMapel(daftarMapel.some((m) => m.kode === tersimpan) ? tersimpan : daftarMapel[0].kode);
+  }
+}
+
+function pilihMapel(kode) {
+  simpan(KUNCI_MAPEL, kode);
+  topikTerpilih = null;
+  $("mulai").disabled = true;
+  for (const b of $("daftar-mapel").children) b.setAttribute("aria-checked", String(b.dataset.kode === kode));
+  const mapel = daftarMapel.find((m) => m.kode === kode);
+  let kelompok = null;
+  $("daftar-topik").replaceChildren(...mapel.topik.flatMap((t) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "topik";
@@ -106,15 +131,31 @@ async function bukaBeranda() {
       `<b>${aman(t.nama)}</b><small>${aman(t.ket)}</small>`;
     b.addEventListener("click", () => {
       topikTerpilih = t.kode;
-      for (const x of $("daftar-topik").children) x.setAttribute("aria-checked", String(x === b));
+      for (const x of $("daftar-topik").querySelectorAll(".topik")) x.setAttribute("aria-checked", String(x === b));
       $("mulai").disabled = false;
     });
-    $("daftar-topik").append(b);
-  }
+    if (!t.kelompok || t.kelompok === kelompok) return [b];
+    kelompok = t.kelompok;       // judul kecil pemisah, mis. "Semester 1"
+    const judul = document.createElement("h3");
+    judul.className = "kelompok";
+    judul.textContent = kelompok;
+    return [judul, b];
+  }));
+}
+
+function galatNama(ada) {
+  $("nama-galat").hidden = !ada;
+  $("nama").classList.toggle("salah", ada);
+  $("nama").setAttribute("aria-invalid", String(ada));
 }
 
 async function mulaiLatihan() {
   if (!topikTerpilih) return;
+  if (!$("nama").value.trim()) {
+    galatNama(true);
+    $("nama").focus();
+    return;
+  }
   if (muat(KUNCI_AKTIF) &&
       !confirm("Masih ada latihan yang belum selesai. Mulai latihan baru dan tinggalkan yang lama?")) return;
   $("mulai").disabled = true;
@@ -122,7 +163,7 @@ async function mulaiLatihan() {
     const nama = $("nama").value.trim();
     simpan(KUNCI_NAMA, nama);
     const l = await api("/api/latihan", { nama, topik: topikTerpilih });
-    aktif = { id: l.id, nama_topik: l.nama_topik, mulai: Date.now(), soal: l.soal,
+    aktif = { id: l.id, nama_topik: `${l.mapel} · ${l.nama_topik}`, mulai: Date.now(), soal: l.soal,
       jawaban: l.soal.map(() => null), posisi: 0 };
     simpan(KUNCI_AKTIF, aktif);
     location.hash = "#/latihan";
@@ -154,6 +195,8 @@ function gambarSoal() {
 
   $("l-posisi").textContent = `Soal ${i + 1} dari ${n}`;
   $("l-batang").style.width = `${(terjawab / n) * 100}%`;
+  $("l-bacaan").textContent = s.bacaan || "";
+  $("l-bacaan").hidden = !s.bacaan;
   $("l-teks").innerHTML = `${i + 1}. ${matematika(s.teks)}`;
   $("l-gambar").innerHTML = s.gambar || "";   // SVG buatan server sendiri
   $("l-gambar").hidden = !s.gambar;
@@ -227,7 +270,7 @@ async function bukaHasil(id) {
   $("h-predikat").textContent = p.teks;
   $("h-nilai").textContent = h.nilai;
   $("h-nilai").className = "nilai-bulat " + p.kelas;
-  $("h-info").textContent = `${h.nama} · ${h.nama_topik} · ${tanggal(h.selesai)}`;
+  $("h-info").textContent = `${h.nama} · ${h.mapel} · ${h.nama_topik} · ${tanggal(h.selesai)}`;
   $("h-rinci").innerHTML = `Benar <b>${h.benar}</b> · Salah <b>${h.jumlah - h.benar}</b> · ` +
     `Waktu <b>${jamMenit(h.durasi)}</b>`;
 
@@ -238,6 +281,7 @@ async function bukaHasil(id) {
     const jawabanmu = s.jawaban === null ? "tidak dijawab"
       : `${HURUF[s.jawaban]}. ${matematika(s.pilihan[s.jawaban])}`;
     li.innerHTML =
+      (s.bacaan ? `<p class="bacaan kecil">${aman(s.bacaan)}</p>` : "") +
       `<p class="tanya">${i + 1}. ${matematika(s.teks)}</p>` +
       (s.gambar ? `<div class="gambar kecil">${s.gambar}</div>` : "") +
       `<p><span class="lencana ${benar ? "benar" : "salah"}">${benar ? "✔ Benar" : "✘ Salah"}</span> ` +
@@ -261,7 +305,7 @@ async function bukaRiwayat() {
   $("r-isi").replaceChildren(...latihan.map((l) => {
     const tr = document.createElement("tr");
     tr.innerHTML =
-      `<td>${aman(tanggal(l.selesai))}</td><td>${aman(l.nama)}</td><td>${aman(l.nama_topik)}</td>` +
+      `<td>${aman(tanggal(l.selesai))}</td><td>${aman(l.nama)}</td><td>${aman(l.mapel)}</td><td>${aman(l.nama_topik)}</td>` +
       `<td>${l.benar}/${l.jumlah}</td><td class="angka">${l.nilai}</td><td>${jamMenit(l.durasi)}</td>` +
       `<td><a href="#/hasil/${l.id}" aria-label="Lihat hasil latihan ${aman(l.nama)}">Lihat ▶</a></td>`;
     tr.addEventListener("click", () => { location.hash = `#/hasil/${l.id}`; });
@@ -287,6 +331,10 @@ async function rute() {
 }
 
 $("mulai").addEventListener("click", mulaiLatihan);
+$("nama").addEventListener("input", () => {
+  simpan(KUNCI_NAMA, $("nama").value.trim());
+  if ($("nama").value.trim()) galatNama(false);
+});
 $("l-sebelum").addEventListener("click", () => pindah(aktif.posisi - 1));
 $("l-berikut").addEventListener("click", () => pindah(aktif.posisi + 1));
 $("l-selesai").addEventListener("click", kumpulkan);

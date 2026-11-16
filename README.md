@@ -2,14 +2,19 @@
 
 Repositori ini berisi dua program belajar matematika:
 
-1. **Pintar Matematika** — aplikasi web latihan soal matematika SD kelas 4 (di bawah ini).
+1. **Pintar Matematika** — aplikasi web latihan soal Matematika dan Bahasa Inggris SD kelas 4 (di bawah ini).
 2. **Math Guru AI** — asisten tanya-jawab matematika di terminal ([lihat di bawah](#-math-guru-ai)).
 
 ## Aplikasi Latihan Soal SD Kelas 4
 
+- Dua mata pelajaran dalam satu aplikasi: **Matematika** dan **Bahasa Inggris**
 - 20 soal pilihan ganda yang selalu baru setiap kali latihan
-- 11 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
+- Matematika — 11 pilihan topik: penjumlahan & pengurangan, perkalian, pembagian, pecahan, KPK & FPB,
   nilai tempat & pembulatan, keliling & luas, bangun datar, pengukuran, soal cerita, dan campuran
+- Bahasa Inggris — mengikuti buku Kemendikbudristek *My Next Words Grade 4*: satu topik per unit
+  (Unit 1–7 semester 1, Unit 8–12 semester 2), ditambah Semester 1 Review, Semester 2 Review, dan
+  paket Latihan Tes Sumatif 3 sesuai kisi-kisi sekolah (soal berbahasa Inggris, pembahasan
+  berbahasa Indonesia)
 - Nilai langsung dihitung, lengkap dengan pembahasan tiap soal
 - Semua hasil latihan tercatat dan bisa dilihat di halaman Riwayat
 
