@@ -157,12 +157,13 @@ async function mulaiLatihan() {
     return;
   }
   if (muat(KUNCI_AKTIF) &&
-      !confirm("Masih ada latihan yang belum selesai. Mulai latihan baru dan tinggalkan yang lama?")) return;
+      !confirm("Masih ada latihan yang belum selesai. Mulai latihan baru dan batalkan yang lama?")) return;
   $("mulai").disabled = true;
   try {
     const nama = $("nama").value.trim();
     simpan(KUNCI_NAMA, nama);
     const l = await api("/api/latihan", { nama, topik: topikTerpilih });
+    await hapusLatihanAktif().catch(() => {});     // latihan lama yang ditinggalkan ikut dibatalkan
     aktif = { id: l.id, nama_topik: `${l.mapel} · ${l.nama_topik}`, mulai: Date.now(), soal: l.soal,
       jawaban: l.soal.map(() => null), posisi: 0 };
     simpan(KUNCI_AKTIF, aktif);
@@ -234,6 +235,31 @@ function pindah(k) {
   aktif.posisi = Math.min(Math.max(k, 0), aktif.soal.length - 1);
   simpan(KUNCI_AKTIF, aktif);
   gambarSoal();
+}
+
+// Hapus latihan yang sedang berjalan, di browser dan di server. Tidak masuk Riwayat.
+async function hapusLatihanAktif() {
+  const lama = aktif || muat(KUNCI_AKTIF);
+  aktif = null;
+  simpan(KUNCI_AKTIF, null);
+  if (!lama) return;
+  try {
+    await api(`/api/latihan/${lama.id}/batal`, {});
+  } catch (e) {
+    if (e.status !== 404 && e.status !== 409) throw e;   // sudah tidak ada / sudah dinilai: abaikan
+  }
+}
+
+async function batalkanLatihan() {
+  if (!(aktif || muat(KUNCI_AKTIF))) return;
+  if (!confirm("Batalkan latihan ini? Jawabanmu akan dihapus dan tidak dicatat di Riwayat.")) return;
+  try {
+    await hapusLatihanAktif();
+  } catch (e) {
+    pesan(e.message + " Latihan sudah dihapus dari perangkat ini.");
+  }
+  if (location.hash === "#/" || location.hash === "") await bukaBeranda();
+  else location.hash = "#/";
 }
 
 async function kumpulkan() {
@@ -338,5 +364,7 @@ $("nama").addEventListener("input", () => {
 $("l-sebelum").addEventListener("click", () => pindah(aktif.posisi - 1));
 $("l-berikut").addEventListener("click", () => pindah(aktif.posisi + 1));
 $("l-selesai").addEventListener("click", kumpulkan);
+$("l-batal").addEventListener("click", batalkanLatihan);
+$("lanjut-batal").addEventListener("click", batalkanLatihan);
 window.addEventListener("hashchange", rute);
 rute();

@@ -25,7 +25,10 @@
 
       <div id="lanjut" class="kartu lanjut" hidden>
         <span>Kamu punya latihan yang belum selesai.</span>
-        <a class="tombol kecil" href="#/latihan">Lanjutkan</a>
+        <span class="baris-aksi">
+          <a class="tombol kecil" href="#/latihan">Lanjutkan</a>
+          <button id="lanjut-batal" class="tombol kecil garis merah" type="button">Batalkan</button>
+        </span>
       </div>
 
       <label class="isian">
@@ -70,6 +73,9 @@
       <div id="l-nomor" class="nomor" aria-label="Lompat ke nomor soal"></div>
       <div class="tengah">
         <button id="l-selesai" class="tombol besar hijau">Selesai &amp; Lihat Nilai</button>
+      </div>
+      <div class="tengah">
+        <button id="l-batal" class="tombol-teks" type="button">✕ Batalkan latihan</button>
       </div>
     </section>
 

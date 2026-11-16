@@ -236,6 +236,24 @@ class UjiApi(unittest.TestCase):
         baris = next(x for x in catatan["latihan"] if x["id"] == latihan["id"])
         self.assertEqual((baris["mapel"], baris["nama_topik"]), ("Bahasa Inggris", "Unit 10 · He Always Gets Up at 5 O'clock"))
 
+    def test_batalkan_latihan(self):
+        _, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "perkalian"})
+        status, hasil = self.minta(f"/api/latihan/{latihan['id']}/batal", {})
+        self.assertEqual((status, hasil["dibatalkan"]), (200, True))
+        # sudah terhapus: tidak bisa dibuka, dikumpulkan, atau dibatalkan lagi, dan tidak masuk riwayat
+        self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}")[0], 404)
+        self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [0] * 20})[0], 404)
+        self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/batal", {})[0], 404)
+        _, catatan = self.minta("/api/riwayat")
+        self.assertNotIn(latihan["id"], [x["id"] for x in catatan["latihan"]])
+
+    def test_latihan_selesai_tidak_bisa_dibatalkan(self):
+        _, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "pembagian"})
+        self.minta(f"/api/latihan/{latihan['id']}/jawab", {"jawaban": [None] * 20})
+        self.assertEqual(self.minta(f"/api/latihan/{latihan['id']}/batal", {})[0], 409)
+        _, catatan = self.minta("/api/riwayat")
+        self.assertIn(latihan["id"], [x["id"] for x in catatan["latihan"]])
+
     def test_masukan_tidak_sah(self):
         self.assertEqual(self.minta("/api/latihan", {"nama": "Budi", "topik": "kalkulus"})[0], 400)
         self.assertEqual(self.minta("/api/latihan/99999")[0], 404)

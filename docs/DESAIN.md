@@ -175,6 +175,10 @@ Soal yang tidak dijawab dihitung salah. Lama pengerjaan dihitung server
 - Kotak nomor berwarna bila sudah dijawab.
 - Bila masih ada soal kosong saat dikumpulkan, muncul konfirmasi.
 - Bila halaman tidak sengaja dimuat ulang, latihan yang sedang berjalan dilanjutkan.
+- Latihan bisa **dibatalkan** (tombol "Batalkan latihan" di layar Latihan, atau "Batalkan" pada
+  pengingat di Beranda). Setelah dikonfirmasi, latihan dihapus dan tidak dicatat di Riwayat.
+  Latihan yang sudah dikumpulkan tidak bisa dibatalkan. Memulai latihan baru saat masih ada
+  latihan berjalan juga membatalkan yang lama.
 
 ### 6.3 Hasil
 
@@ -239,6 +243,7 @@ data/latihan.db     dibuat otomatis saat pertama dijalankan
 | GET | `/api/topik` | daftar mata pelajaran beserta topiknya |
 | POST | `/api/latihan` | mulai latihan baru `{nama, topik}` → 20 soal **tanpa kunci** |
 | GET | `/api/latihan/{id}` | latihan berjalan (soal saja) atau latihan selesai (lengkap dengan kunci & pembahasan) |
+| POST | `/api/latihan/{id}/batal` | batalkan latihan yang belum dikumpulkan; datanya dihapus dan tidak masuk Riwayat |
 | POST | `/api/latihan/{id}/jawab` | kumpulkan `{jawaban: [0-3 atau null] × 20}` → dinilai & disimpan |
 | GET | `/api/riwayat` | daftar latihan yang sudah selesai + ringkasan |
 
