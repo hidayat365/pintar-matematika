@@ -14,6 +14,7 @@ import app  # noqa: E402
 import bank  # noqa: E402
 import soal  # noqa: E402
 import soal_inggris  # noqa: E402
+import soal_sunda  # noqa: E402
 
 
 class UjiSoal(unittest.TestCase):
@@ -154,6 +155,64 @@ class UjiSoalInggris(unittest.TestCase):
         self.assertEqual(bank.nama_mapel("pecahan"), "Matematika")
 
 
+class UjiSoalSunda(unittest.TestCase):
+    def test_topik_mengikuti_pangajaran_buku(self):
+        kode = soal_sunda.KODE_TOPIK
+        self.assertEqual(kode[:8], [f"su-pangajaran-{i}" for i in range(1, 9)])
+        self.assertEqual(kode[8:], ["su-semester-1", "su-semester-2"])
+        self.assertEqual({t["kelompok"] for t in soal_sunda.TOPIK[:4]}, {"Semester 1"})
+        self.assertEqual({t["kelompok"] for t in soal_sunda.TOPIK[4:8]}, {"Semester 2"})
+        self.assertEqual(bank.nama_mapel("su-pangajaran-1"), "Bahasa Sunda")
+
+    def test_setiap_topik_menghasilkan_20_soal_unik_dan_sah(self):
+        for kode in soal_sunda.KODE_TOPIK:
+            for benih in range(150):
+                daftar = soal_sunda.buat_latihan(kode, rng=random.Random(benih))
+                self.assertEqual(len(daftar), 20, kode)
+                self.assertEqual(len({(s["teks"], s.get("bacaan")) for s in daftar}), 20, kode)
+                for s in daftar:
+                    self.assertEqual(len(set(s["pilihan"])), 4, s)
+                    self.assertIn(s["benar"], range(4), s)
+                    self.assertTrue(s["pembahasan"], s)
+                    self.assertNotIn("kunci", s)
+
+    def test_setiap_pembangkit_berjalan(self):
+        r = random.Random(7)
+        for daftar in soal_sunda.PEMBANGKIT.values():
+            for buat in daftar:
+                for _ in range(300):
+                    s = buat(r)
+                    self.assertEqual(len(set(s["pilihan"])), 4, s)
+
+    def test_jawaban_bacaan_ada_di_dalam_bacaan(self):
+        semua = [b for n in range(1, 9) for b in getattr(soal_sunda, f"_BACAAN_{n}", [])]
+        self.assertGreater(len(semua), 30)
+        for bacaan, butir in semua:
+            for teks, jawab, salah, *_ in butir:
+                self.assertEqual(len(set(salah)), len(salah), teks)
+                self.assertNotIn(jawab, salah, teks)
+                self.assertGreaterEqual(len(salah), 3, teks)
+
+    def test_pemenggalan_suku_kata(self):
+        for n in (1, 2, 3, 4, 6):
+            for ejaan in getattr(soal_sunda, f"_EJAAN_{n}"):
+                salah = soal_sunda._geser(ejaan)[:3]
+                self.assertEqual(len(set(salah)), 3, ejaan)
+                self.assertNotIn(ejaan, salah)
+                for s in salah:
+                    self.assertEqual(s.replace("-", ""), ejaan.replace("-", ""))
+
+    def test_susun_kalimat_memakai_kata_yang_sama(self):
+        r = random.Random(3)
+        for daftar in (soal_sunda._SUSUN_5, soal_sunda._SUSUN_7, soal_sunda._SUSUN_8):
+            for acak, benar in daftar:
+                self.assertEqual(sorted(acak.lower().split(" – ")), sorted(benar.lower().split()), benar)
+            for _ in range(100):
+                s = soal_sunda._susun(daftar)(r)
+                kata = [sorted(p.lower().rstrip(".").split()) for p in s["pilihan"]]
+                self.assertTrue(all(k == kata[0] for k in kata), s)
+
+
 class UjiApi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -194,8 +253,8 @@ class UjiApi(unittest.TestCase):
     def test_alur_lengkap(self):
         status, topik = self.minta("/api/topik")
         self.assertEqual(status, 200)
-        self.assertEqual([m["kode"] for m in topik["mapel"]], ["matematika", "inggris"])
-        self.assertEqual([len(m["topik"]) for m in topik["mapel"]], [11, 15])
+        self.assertEqual([m["kode"] for m in topik["mapel"]], ["matematika", "inggris", "sunda"])
+        self.assertEqual([len(m["topik"]) for m in topik["mapel"]], [11, 15, 10])
 
         status, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "pecahan"})
         self.assertEqual(status, 200)

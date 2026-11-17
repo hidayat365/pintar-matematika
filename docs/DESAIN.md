@@ -99,6 +99,34 @@ Paket `en-ts3` mengambil soal hanya dari materi di tabel ini.
 Kode topik Bahasa Inggris diawali `en-` sehingga tidak bertabrakan dengan topik Matematika;
 mata pelajaran sebuah latihan diturunkan dari kode topiknya, jadi skema database tidak berubah.
 
+### Mata pelajaran Bahasa Sunda (kelas 1)
+
+Mata pelajaran ketiga, untuk kelas 1, memakai alur yang sama. Pembagian topik mengikuti buku
+**Pamekar Diajar Basa Sunda Pikeun Murid SD/MI Kelas I** (Dinas Pendidikan Provinsi Jawa Barat,
+2014): satu topik per *pangajaran*. Soal ditulis dalam bahasa Sunda; pembahasan dalam bahasa
+Indonesia.
+
+| Kode | Pangajaran | Isi soal |
+|---|---|---|
+| `su-pangajaran-1` | 1 · Ngurus Diri Sorangan | bacaan Aa budak apik, ngariksa badan, huruf awal/akhir kata, mengeja suku kata |
+| `su-pangajaran-2` | 2 · Pangaresep | bacaan karesep, kata kerja (pacul → macul, dikonci), mengeja |
+| `su-pangajaran-3` | 3 · Kagiatan | bacaan berangkat sekolah dan olahraga, percakapan, kata yang mirip (bener/beuneur) |
+| `su-pangajaran-4` | 4 · Kulawarga | bacaan keluarga, sebutan kekerabatan, percakapan, kata ber-"ny" |
+| `su-pangajaran-5` | 5 · Pangalaman | bacaan nyaba ka Panyirapan, kata tanya, menyusun kalimat, istilah tempat, pupuh magatru |
+| `su-pangajaran-6` | 6 · Lingkungan Sabudeureun | bacaan musim hujan dan kerja bakti, mengeja, tiruan bunyi, perkakas |
+| `su-pangajaran-7` | 7 · Miara Barang, Sasatoan jeung Tatangkalan | merawat barang, nama hewan dan kandangnya, tanaman, menyusun kalimat |
+| `su-pangajaran-8` | 8 · Kajadian Alam | bacaan katumbiri dan kejadian alam, percakapan, ucapan, keadaan alam |
+| `su-semester-1` | Gabungan Semester 1 | campuran Pangajaran 1–4 |
+| `su-semester-2` | Gabungan Semester 2 | campuran Pangajaran 5–8 |
+
+Berbeda dari Matematika, sebagian besar soal Bahasa Sunda berasal dari kumpulan butir tetap yang
+disusun dari bacaan, kalimat, dan latihan di buku; yang diacak adalah pilihan butir, urutannya,
+dan pengecohnya. Bacaan dipotong per paragraf pendek agar sesuai untuk pembaca pemula.
+
+Karena aplikasi kini memuat lebih dari satu kelas, tiap mata pelajaran membawa keterangan
+kelasnya (Matematika dan Bahasa Inggris kelas 4, Bahasa Sunda kelas 1) yang ditampilkan pada
+pilihan mata pelajaran.
+
 ## 4. Penilaian
 
 ```
@@ -228,6 +256,7 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
 app.py              server & API
 soal.py             pembangkit soal Matematika
 soal_inggris.py     pembangkit soal Bahasa Inggris
+soal_sunda.py       pembangkit soal Bahasa Sunda (kelas 1)
 bank.py             daftar mata pelajaran; penghubung app.py ke pembangkit soal
 static/index.html   kerangka halaman
 static/style.css    tampilan
