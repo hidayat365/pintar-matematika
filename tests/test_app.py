@@ -14,6 +14,7 @@ import app  # noqa: E402
 import bank  # noqa: E402
 import soal  # noqa: E402
 import soal_inggris  # noqa: E402
+import soal_ipas  # noqa: E402
 import soal_sunda  # noqa: E402
 
 
@@ -155,6 +156,81 @@ class UjiSoalInggris(unittest.TestCase):
         self.assertEqual(bank.nama_mapel("pecahan"), "Matematika")
 
 
+class UjiSoalIpas(unittest.TestCase):
+    def test_topik_sesuai_kisi_kisi(self):
+        self.assertEqual(soal_ipas.KODE_TOPIK, [
+            "ipas-peta", "ipas-jenis-peta", "ipas-letak", "ipas-pemda", "ipas-gaya", "ipas-macam-gaya",
+            "ipas-manfaat-gaya", "ipas-gaya-gesek", "ipas-bab-2", "ipas-bab-4", "ipas-sumatif-2"])
+        self.assertEqual(bank.nama_mapel("ipas-letak"), "IPAS")
+        self.assertEqual(set(soal_ipas.GABUNGAN["ipas-sumatif-2"]), set(soal_ipas.PEMBANGKIT))
+
+    def test_setiap_topik_menghasilkan_20_soal_unik_dan_sah(self):
+        from xml.dom.minidom import parseString
+        for kode in soal_ipas.KODE_TOPIK:
+            for benih in range(150):
+                daftar = soal_ipas.buat_latihan(kode, rng=random.Random(benih))
+                self.assertEqual(len(daftar), 20, kode)
+                kunci = {(s["teks"], s.get("bacaan"), s.get("gambar"), tuple(sorted(s["pilihan"]))) for s in daftar}
+                self.assertEqual(len(kunci), 20, kode)
+                for s in daftar:
+                    self.assertEqual(len(set(s["pilihan"])), 4, s)
+                    self.assertIn(s["benar"], range(4), s)
+                    self.assertTrue(s["pembahasan"], s)
+                    self.assertNotIn("kunci", s)
+                    if "gambar" in s and benih < 10:
+                        parseString(s["gambar"])
+
+    def test_setiap_pembangkit_berjalan(self):
+        r = random.Random(7)
+        for daftar in soal_ipas.PEMBANGKIT.values():
+            for buat in daftar:
+                for _ in range(300):
+                    s = buat(r)
+                    self.assertEqual(len(set(map(str, s["pilihan"]))), 4, s)
+
+    def test_butir_tetap_tidak_memuat_jawaban_di_pengecoh(self):
+        for daftar in (soal_ipas._PETA, soal_ipas._JENIS, soal_ipas._LETAK, soal_ipas._PEMDA, soal_ipas._GAYA,
+                       soal_ipas._MACAM, soal_ipas._MANFAAT, soal_ipas._GESEK):
+            for teks, jawab, salah, bahas in daftar:
+                self.assertGreaterEqual(len(set(salah)), 3, teks)
+                self.assertNotIn(jawab, salah, teks)
+                self.assertTrue(bahas, teks)
+
+    def test_arah_kota_sesuai_posisi(self):
+        r = random.Random(11)
+        for _ in range(300):
+            s = soal_ipas.p_arah_kota(r)
+            _, a, b, c, d = s["kunci"]
+            dx, dy = a - c, d - b
+            arah = ("utara" if dy > 0 else "selatan" if dy < 0 else "")
+            arah2 = ("timur" if dx > 0 else "barat" if dx < 0 else "")
+            if arah and arah2:
+                harap = {"utaratimur": "timur laut", "utarabarat": "barat laut",
+                         "selatantimur": "tenggara", "selatanbarat": "barat daya"}[arah + arah2]
+            else:
+                harap = arah or arah2
+            self.assertEqual(s["pilihan"][s["benar"]], harap)
+
+    def test_skala_dan_garis_lintang(self):
+        r = random.Random(4)
+        for _ in range(200):
+            s = soal_ipas.p_skala_hitung(r)
+            skala = int(s["teks"].split("1 : ")[1].split(",")[0].replace(".", ""))
+            cm = int(s["teks"].split("adalah ")[1].split(" cm")[0])
+            self.assertEqual(s["pilihan"][s["benar"]], f"{cm * skala // 100_000} km")
+        self.assertEqual(soal_ipas._lintang(4), "4° LU")
+        self.assertEqual(soal_ipas._lintang(-6), "6° LS")
+        self.assertEqual(soal_ipas._lintang(0), "0°")
+
+    def test_pengecoh_gaya_tidak_ambigu(self):
+        r = random.Random(8)
+        for _ in range(500):
+            s = soal_ipas.p_jenis_gaya(r)
+            jawab = s["pilihan"][s["benar"]]
+            if jawab in ("gaya listrik", "gaya pegas", "gaya gravitasi", "gaya gesek"):
+                self.assertNotIn("gaya otot", s["pilihan"], s["teks"])
+
+
 class UjiSoalSunda(unittest.TestCase):
     def test_topik_mengikuti_pangajaran_buku(self):
         kode = soal_sunda.KODE_TOPIK
@@ -253,8 +329,8 @@ class UjiApi(unittest.TestCase):
     def test_alur_lengkap(self):
         status, topik = self.minta("/api/topik")
         self.assertEqual(status, 200)
-        self.assertEqual([m["kode"] for m in topik["mapel"]], ["matematika", "inggris", "sunda"])
-        self.assertEqual([len(m["topik"]) for m in topik["mapel"]], [11, 15, 10])
+        self.assertEqual([m["kode"] for m in topik["mapel"]], ["matematika", "inggris", "ipas", "sunda"])
+        self.assertEqual([len(m["topik"]) for m in topik["mapel"]], [11, 15, 11, 10])
 
         status, latihan = self.minta("/api/latihan", {"nama": "Budi", "topik": "pecahan"})
         self.assertEqual(status, 200)

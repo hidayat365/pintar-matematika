@@ -99,6 +99,28 @@ Paket `en-ts3` mengambil soal hanya dari materi di tabel ini.
 Kode topik Bahasa Inggris diawali `en-` sehingga tidak bertabrakan dengan topik Matematika;
 mata pelajaran sebuah latihan diturunkan dari kode topiknya, jadi skema database tidak berubah.
 
+### Mata pelajaran IPAS (kelas 4)
+
+Topik IPAS disusun dari **kisi-kisi Sumatif 2 IPAS kelas 4** yang diberikan sekolah, karena buku
+sumbernya tidak tersedia. Satu topik untuk setiap butir kisi-kisi, dikelompokkan per bab:
+
+| Kode | Bab | Topik | Isi soal |
+|---|---|---|---|
+| `ipas-peta` | Bab 2 | Mengenal Peta | pengertian peta, bagian-bagian peta (peta bergambar), simbol, warna, skala, mata angin, arah antarkota |
+| `ipas-jenis-peta` | Bab 2 | Jenis Peta | peta umum dan peta khusus, contoh-contohnya, bentang alam dan buatan |
+| `ipas-letak` | Bab 2 | Letak Astronomis dan Geografis | garis lintang dan bujur (gambar), letak Indonesia, bacaan batas wilayah daerah contoh |
+| `ipas-pemda` | Bab 2 | Pemerintahan Daerah | pemimpin tiap wilayah, urutan wilayah, DPRD dan perda, dinas, tugas daerah dan pusat |
+| `ipas-gaya` | Bab 4 | Gaya dan Pengaruhnya | pengertian gaya, tarikan dan dorongan, pengaruh gaya pada bentuk dan gerak |
+| `ipas-macam-gaya` | Bab 4 | Macam-Macam Gaya | gaya otot, listrik, magnet, pegas, gravitasi, gesek; benda magnetis |
+| `ipas-manfaat-gaya` | Bab 4 | Manfaat Gaya | pemanfaatan gaya dalam kehidupan sehari-hari |
+| `ipas-gaya-gesek` | Bab 4 | Gaya Gesek dan Gerak Benda | permukaan kasar dan licin, gesek menguntungkan dan merugikan |
+| `ipas-bab-2`, `ipas-bab-4` | | Gabungan per bab | campuran subtopik bab itu |
+| `ipas-sumatif-2` | | Latihan Sumatif 2 | campuran seluruh kisi-kisi |
+
+Sebagian soal bergambar (SVG buatan server): peta berlabel dengan tanda tanya pada bagian yang
+ditanyakan, mata angin, letak dua kota, kisi garis lintang dan bujur, dan simbol peta. Daerah pada
+bacaan batas wilayah adalah daerah contoh (nama rekaan) agar tidak memuat data wilayah yang keliru.
+
 ### Mata pelajaran Bahasa Sunda (kelas 1)
 
 Mata pelajaran ketiga, untuk kelas 1, memakai alur yang sama. Pembagian topik mengikuti buku
@@ -256,6 +278,7 @@ Baris bisa diklik untuk membuka kembali halaman Hasil lengkap dengan pembahasan.
 app.py              server & API
 soal.py             pembangkit soal Matematika
 soal_inggris.py     pembangkit soal Bahasa Inggris
+soal_ipas.py        pembangkit soal IPAS (kelas 4)
 soal_sunda.py       pembangkit soal Bahasa Sunda (kelas 1)
 bank.py             daftar mata pelajaran; penghubung app.py ke pembangkit soal
 static/index.html   kerangka halaman

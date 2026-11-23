@@ -2,6 +2,7 @@
 
 import soal
 import soal_inggris
+import soal_ipas
 import soal_sunda
 
 JUMLAH_SOAL = soal.JUMLAH_SOAL
@@ -9,6 +10,7 @@ JUMLAH_SOAL = soal.JUMLAH_SOAL
 _MAPEL = [
     {"kode": "matematika", "nama": "Matematika", "kelas": "Kelas 4", "ikon": "🧮", "modul": soal},
     {"kode": "inggris", "nama": "Bahasa Inggris", "kelas": "Kelas 4", "ikon": "📘", "modul": soal_inggris},
+    {"kode": "ipas", "nama": "IPAS", "kelas": "Kelas 4", "ikon": "🔬", "modul": soal_ipas},
     {"kode": "sunda", "nama": "Bahasa Sunda", "kelas": "Kelas 1", "ikon": "🎋", "modul": soal_sunda},
 ]
 
